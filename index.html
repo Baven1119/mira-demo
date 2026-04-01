@@ -143,8 +143,17 @@ async function getReply(){
     const data = await res.json();
     const raw = data.content.map(c=>c.text||'').join('');
     let parsed;
-    try{ parsed = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
-    catch(e){ parsed = {reply:raw, actions:[]}; }
+    try{
+  const clean = raw.replace(/```json|```/g,'').trim();
+  parsed = JSON.parse(clean);
+}catch(e){
+  const replyMatch = raw.match(/"reply"\s*:\s*"([^"]+)"/);
+  const actionsMatch = raw.match(/"actions"\s*:\s*\[([^\]]+)\]/);
+  parsed = {
+    reply: replyMatch ? replyMatch[1] : raw,
+    actions: actionsMatch ? actionsMatch[1].match(/"([^"]+)"/g).map(s=>s.replace(/"/g,'')) : []
+  };
+}
     const reply = parsed.reply||raw;
     const actions = parsed.actions||[];
     history.push({role:'assistant', content:reply});
