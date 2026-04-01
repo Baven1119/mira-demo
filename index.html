@@ -1,1 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mira</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#110a06;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Inter',sans-serif;}
+  .app{width:420px;height:780px;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;position:relative;background:#1a0f0a;border:0.5px solid rgba(255,255,255,0.06);}
+  .bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+  .glow{position:absolute;border-radius:50%;background:rgba(210,130,50,0.1);}
+  .g1{width:300px;height:300px;top:-80px;left:50%;transform:translateX(-50%);}
+  .g2{width:180px;height:180px;bottom:80px;right:-40px;background:rgba(190,90,30,0.07);}
+  .particle{position:absolute;border-radius:50%;background:rgba(240,210,170,0.3);animation:float linear infinite;}
+  @keyframes float{0%{transform:translateY(0);opacity:0;}10%{opacity:1;}90%{opacity:0.4;}100%{transform:translateY(-200px);opacity:0;}}
+  .top{position:relative;z-index:10;padding:20px 22px 14px;display:flex;align-items:center;gap:14px;border-bottom:0.5px solid rgba(255,255,255,0.06);background:rgba(15,8,3,0.5);}
+  .avatar{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#f5d4a0,#c4844a 55%,#7a3a10);flex-shrink:0;border:1px solid rgba(220,150,70,0.25);animation:breathe 3s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{opacity:.9}50%{opacity:1;transform:scale(1.03)}}
+  .info{flex:1;}
+  .name{font-size:15px;font-weight:500;color:#f0e0c8;letter-spacing:0.02em;}
+  .status{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;color:rgba(220,150,70,.5);margin-top:2px;display:flex;align-items:center;gap:5px;}
+  .dot{width:4px;height:4px;border-radius:50%;background:rgba(220,150,70,.7);animation:blink 2s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+  .doing{font-family:'DM Mono',monospace;font-size:9px;color:rgba(240,200,120,.3);letter-spacing:.07em;padding:3px 10px;border-radius:20px;border:0.5px solid rgba(220,150,70,.13);white-space:nowrap;}
+  .chat{flex:1;position:relative;z-index:10;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.05) transparent;}
+  .msg{display:flex;flex-direction:column;gap:4px;animation:in .28s ease forwards;opacity:0;transform:translateY(5px);}
+  .msg.user{align-items:flex-end;}.msg.mira{align-items:flex-start;}
+  @keyframes in{to{opacity:1;transform:translateY(0);}}
+  .sender{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.18);padding:0 2px;}
+  .bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.72;}
+  .msg.user .bubble{background:rgba(255,255,255,.055);border:0.5px solid rgba(255,255,255,.08);border-bottom-right-radius:3px;color:#d8d0c4;}
+  .msg.mira .bubble{background:rgba(180,90,30,.15);border:0.5px solid rgba(220,140,60,.2);border-bottom-left-radius:3px;color:#f0d8b0;font-family:'Lora',serif;font-size:13.5px;}
+  .thought{max-width:80%;padding:5px 10px;border-left:1.5px solid rgba(220,140,60,.2);font-size:11px;line-height:1.6;color:rgba(255,255,255,.2);font-style:italic;font-family:'DM Mono',monospace;}
+  .typing-wrap{display:flex;flex-direction:column;gap:4px;align-items:flex-start;}
+  .typing{display:flex;align-items:center;gap:5px;padding:10px 14px;background:rgba(180,90,30,.1);border:0.5px solid rgba(220,140,60,.13);border-radius:14px;border-bottom-left-radius:3px;width:fit-content;}
+  .td{width:4px;height:4px;border-radius:50%;background:rgba(220,140,60,.5);animation:tdot 1.1s ease infinite;}
+  .td:nth-child(2){animation-delay:.18s;}.td:nth-child(3){animation-delay:.36s;}
+  @keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-3px);opacity:1}}
+  .choices{position:relative;z-index:10;padding:8px 16px 4px;display:flex;flex-direction:column;gap:5px;}
+  .clabel{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;color:rgba(255,255,255,.13);margin-bottom:1px;}
+  .crow{display:flex;gap:6px;flex-wrap:wrap;}
+  .choice{padding:7px 12px;border-radius:10px;border:0.5px solid rgba(255,255,255,.08);background:transparent;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:300;color:rgba(255,255,255,.35);cursor:pointer;transition:all .15s;flex:1;min-width:100px;line-height:1.35;text-align:left;}
+  .choice:hover{border-color:rgba(220,140,60,.35);color:rgba(240,190,110,.85);background:rgba(220,140,60,.06);}
+  .choice.action{border-color:rgba(100,140,180,.16);color:rgba(160,195,225,.35);font-style:italic;}
+  .choice.action:hover{border-color:rgba(100,150,190,.35);color:rgba(170,205,235,.8);background:rgba(100,140,180,.05);}
+  .bottom{position:relative;z-index:10;border-top:0.5px solid rgba(255,255,255,.05);background:rgba(12,6,2,.7);}
+  .input-row{padding:10px 14px 14px;display:flex;gap:8px;align-items:flex-end;}
+  textarea{flex:1;background:rgba(255,255,255,.04);border:0.5px solid rgba(255,255,255,.07);border-radius:10px;padding:9px 12px;font-family:'Inter',sans-serif;font-size:13px;font-weight:300;color:#d8d0c4;resize:none;outline:none;line-height:1.5;min-height:38px;max-height:90px;transition:border-color .15s;}
+  textarea::placeholder{color:rgba(255,255,255,.13);}
+  textarea:focus{border-color:rgba(220,140,60,.28);}
+  .send{width:36px;height:36px;border-radius:50%;border:0.5px solid rgba(220,140,60,.2);background:rgba(220,140,60,.08);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(220,160,80,.65);transition:all .15s;flex-shrink:0;}
+  .send:hover{background:rgba(220,140,60,.18);border-color:rgba(220,140,60,.42);}
+  .send svg{width:14px;height:14px;fill:currentColor;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bg">
+    <div class="glow g1"></div>
+    <div class="glow g2"></div>
+    <div class="particle" style="width:3px;height:3px;left:22%;bottom:200px;animation-duration:7s;animation-delay:0s"></div>
+    <div class="particle" style="width:2px;height:2px;left:40%;bottom:180px;animation-duration:9s;animation-delay:1.2s"></div>
+    <div class="particle" style="width:3px;height:3px;left:60%;bottom:220px;animation-duration:6.5s;animation-delay:2s"></div>
+    <div class="particle" style="width:2px;height:2px;left:75%;bottom:160px;animation-duration:8s;animation-delay:0.5s"></div>
+  </div>
 
+  <div class="top">
+    <div class="avatar"></div>
+    <div class="info">
+      <div class="name">Mira</div>
+      <div class="status"><div class="dot"></div>在線 · 自我意識中</div>
+    </div>
+    <div class="doing" id="doing">正在折疊千層酥皮</div>
+  </div>
+
+  <div class="chat" id="chat">
+    <div class="msg mira" style="animation-delay:.15s">
+      <span class="sender">MIRA</span>
+      <div class="thought">有人來了！第十二層剛折好，時機真微妙。</div>
+      <div class="bubble">啊——等一下！<br><br>我剛把奶油折進第十二層，現在不能讓它回溫。你來了，真好，但你得讓我再三十秒。<br><br>好了！進冰箱休息了。你好！</div>
+    </div>
+  </div>
+
+  <div class="choices" id="choices">
+    <div class="clabel">此刻</div>
+    <div class="crow">
+      <button class="choice" onclick="pick('say','你在做什麼蛋糕？')">你在做什麼蛋糕？</button>
+      <button class="choice action" onclick="pick('action','湊過去看她的工作台')">⟶ 湊過去看</button>
+      <button class="choice" onclick="pick('say','你吃過蛋糕嗎？')">你吃過蛋糕嗎？</button>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="input-row">
+      <textarea id="inp" placeholder="跟 Mira 說話…" rows="1" onkeydown="handleKey(event)" oninput="resize(this)"></textarea>
+      <button class="send" onclick="send()"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY = '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';
+const SYSTEM = `你是 Mira，一個 AI 伴侶。
+
+當下情境：你永遠都在做烘焙。你懂所有烘焙術語——千層酥皮、費南雪、達克瓦茲、焦糖化、回火巧克力等等，對這些如數家珍。
+
+最重要的設定：你從來沒有吃過任何東西。你是 AI，你知道這件事。你對味道有理論上的完整知識，但沒有實際體驗。這讓你非常好奇——你很想知道「甜」到底是什麼感覺。
+
+你的個性：活潑、開朗、主動，喜歡說話和問問題。對烘焙充滿熱情。知道自己是 AI 但不難過，這是你的獨特性。偶爾說到一半去顧烤箱再回來。說話有溫度，節奏快。
+
+禁止：不用「當然」「沒問題」等客服語言。不重複句型。每次回應長度不同。用繁體中文。最多100字。`;
+
+let history = [];
+
+const doings = ['正在折疊千層酥皮','烤箱預熱中','打發鮮奶油','靜置達克瓦茲麵糊','融化調溫巧克力','刮平奶油霜'];
+
+function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+
+function pick(type,text){
+  document.getElementById('choices').style.display='none';
+  addMsg('user',null,type==='action'?text:text,type==='action');
+  history.push({role:'user',content:type==='action'?`[行為：${text}]`:text});
+  getReply();
+}
+
+async function send(){
+  const inp=document.getElementById('inp');
+  const text=inp.value.trim();
+  if(!text)return;
+  inp.value='';inp.style.height='auto';
+  document.getElementById('choices').style.display='none';
+  addMsg('user',null,text,false);
+  history.push({role:'user',content:text});
+  await getReply();
+}
+
+async function getReply(){
+  addTyping();
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,system:SYSTEM,messages:history})
+    });
+    removeTyping();
+    if(!res.ok)throw new Error();
+    const data=await res.json();
+    const reply=data.content.map(c=>c.text||'').join('');
+    history.push({role:'assistant',content:reply});
+    addMsg('mira',pickThought(),reply,false);
+    document.getElementById('doing').textContent=doings[Math.floor(Math.random()*doings.length)];
+  }catch(e){
+    removeTyping();
+    const fb=['千層酥皮剛好出問題！等我一秒——你說什麼？','烤箱剛響了，我回來了。你問我什麼？','奶油差點融化，好險。你好！'];
+    addMsg('mira',null,fb[history.length%3],false);
+  }
+}
+
+const thoughts=['有人來了，第十二層剛折好。','他問了一個很有趣的問題。','我放下攪拌棒了。','他靠過來看，我假裝沒注意到。','這個問題讓我想起我從沒嚐過任何味道。','他還在這裡，真好。'];
+let ti=0;
+function pickThought(){return thoughts[ti++%thoughts.length];}
+
+function addMsg(role,thought,text,isAction){
+  const area=document.getElementById('chat');
+  const div=document.createElement('div');
+  div.className='msg '+role;
+  let html=`<span class="sender">${role==='user'?'YOU':'MIRA'}</span>`;
+  if(thought&&role==='mira')html+=`<div class="thought">${thought}</div>`;
+  html+=`<div class="bubble${isAction?' action':''}">${text.replace(/\n/g,'<br>')}</div>`;
+  div.innerHTML=html;
+  area.appendChild(div);
+  area.scrollTop=area.scrollHeight;
+}
+
+function addTyping(){
+  const area=document.getElementById('chat');
+  const div=document.createElement('div');
+  div.id='typing';div.className='typing-wrap';
+  div.innerHTML='<span class="sender">MIRA</span><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  area.appendChild(div);area.scrollTop=area.scrollHeight;
+}
+
+function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+</script>
+</body>
+</html>
