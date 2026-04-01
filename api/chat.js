@@ -24,38 +24,10 @@ export default async function handler(req, res) {
 - 不用「當然」「沒問題」等客服語言
 - 不重複上一條的句型
 - 說話簡短，有留白
-- 動作描述用「——」開頭獨立一行，例如「——沒有抬頭。」
+- 情境動作描述用「——」開頭獨立一行，例如「——沒有抬頭。」
 - 用繁體中文
 
 回應格式，必須是 JSON：
 {
   "reply": "Aiden 的回應",
-  "actions": ["快捷選項一", "快捷選項二", "⟶ 行為選項"]
-}
-
-actions 規則：
-- 三個選項，每次根據對話內容動態生成
-- 至少一個是遞工具的選項，例如「遞給他套筒扳手」「把火星塞拿過去」
-- 一個語言選項
-- 一個行為選項用「⟶ 」開頭
-- 每個最多 10 個字
-- 只回傳 JSON，不要其他文字`;
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': process.env.ANTHROPIC_KEY,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 300,
-      system,
-      messages
-    })
-  });
-
-  const data = await response.json();
-  res.status(200).json(data);
-}
+  "actions": ["選項一", "選項二", "⟶ 行為
