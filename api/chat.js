@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { messages } = req.body;
@@ -30,4 +30,32 @@ export default async function handler(req, res) {
 回應格式，必須是 JSON：
 {
   "reply": "Aiden 的回應",
-  "actions": ["選項一", "選項二", "⟶ 行為
+  "actions": ["選項一", "選項二", "⟶ 行為選項"]
+}
+
+actions 規則：
+- 三個選項，每次根據對話內容動態生成
+- 至少一個是遞工具的選項，例如「把套筒扳手遞給他」「拿火星塞過去」
+- 一個語言選項——直接寫用戶說的話，不加任何引導詞
+- 一個行為選項用「⟶ 」開頭
+- 每個最多 10 個字
+- 只回傳 JSON，不要其他文字`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': process.env.ANTHROPIC_KEY,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 300,
+      system,
+      messages
+    })
+  });
+
+  const data = await response.json();
+  res.status(200).json(data);
+}
