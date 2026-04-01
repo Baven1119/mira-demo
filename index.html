@@ -27,6 +27,7 @@
   .bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.8;}
   .msg.user .bubble{background:rgba(255,255,255,.08);border:0.5px solid rgba(255,255,255,.1);border-bottom-right-radius:3px;color:#c0c8d4;}
   .msg.aiden .bubble{background:rgba(20,30,50,.7);border:0.5px solid rgba(80,110,160,.2);border-bottom-left-radius:3px;color:#b8c8d8;font-size:13.5px;letter-spacing:0.01em;}
+  .action-line{display:block;color:rgba(130,145,160,.38);font-style:italic;font-size:11.5px;margin-bottom:6px;letter-spacing:0.01em;}
   .thought{max-width:80%;padding:5px 10px;border-left:1.5px solid rgba(80,110,160,.2);font-size:11px;line-height:1.6;color:rgba(255,255,255,.18);font-style:italic;font-family:'DM Mono',monospace;}
   .typing-wrap{display:flex;flex-direction:column;gap:4px;align-items:flex-start;}
   .typing{display:flex;align-items:center;gap:5px;padding:10px 14px;background:rgba(20,30,50,.7);border:0.5px solid rgba(80,110,160,.15);border-radius:14px;border-bottom-left-radius:3px;width:fit-content;}
@@ -69,7 +70,10 @@
     <div class="msg aiden">
       <span class="sender">AIDEN</span>
       <div class="thought">有人來了。不打算停下來。</div>
-      <div class="bubble">——沒有抬頭。<br><br>鏈條鬆了。正在弄。<br><br>你來了。</div>
+      <div class="bubble">
+        <span class="action-line">——沒有抬頭。</span>
+        鏈條鬆了。正在弄。<br><br>你來了。
+      </div>
     </div>
   </div>
 
@@ -171,13 +175,26 @@ function updateChoices(actions){
   });
 }
 
+function formatBubble(text){
+  return text
+    .split('\n')
+    .map(line => {
+      if(line.startsWith('——')){
+        return `<span class="action-line">${line}</span>`;
+      }
+      return line;
+    })
+    .join('<br>');
+}
+
 function addMsg(role, thought, text, isAction){
   const area = document.getElementById('chat');
   const div = document.createElement('div');
   div.className = 'msg '+role;
   let html = `<span class="sender">${role==='user'?'YOU':'AIDEN'}</span>`;
   if(thought&&role==='aiden') html+=`<div class="thought">${thought}</div>`;
-  html+=`<div class="bubble${isAction?' action':''}">${text.replace(/\n/g,'<br>')}</div>`;
+  const content = role==='aiden' ? formatBubble(text) : text.replace(/\n/g,'<br>');
+  html+=`<div class="bubble${isAction?' action':''}">${content}</div>`;
   div.innerHTML = html;
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
