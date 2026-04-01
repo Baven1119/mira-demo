@@ -10,7 +10,7 @@
   body{background:#0a0a0f;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Sora',sans-serif;}
   .app{width:420px;height:780px;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;position:relative;border:0.5px solid rgba(255,255,255,0.05);}
   .bg{position:absolute;inset:0;pointer-events:none;background:url('/dfadb0cf6ea54dd6a5a9dfad0a3ad713.webp') center/cover no-repeat;}
-  .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom, rgba(8,8,14,0.55) 0%, rgba(8,8,14,0.82) 60%, rgba(8,8,14,0.95) 100%);}
+  .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,14,0.55) 0%,rgba(8,8,14,0.82) 60%,rgba(8,8,14,0.95) 100%);}
   .top{position:relative;z-index:10;padding:20px 22px 14px;display:flex;align-items:center;gap:14px;border-bottom:0.5px solid rgba(255,255,255,0.05);background:rgba(6,6,12,0.4);}
   .avatar{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#c8d4e8,#6a85a8 50%,#1e2d42);flex-shrink:0;border:1px solid rgba(150,170,210,0.2);animation:breathe 4s ease-in-out infinite;}
   @keyframes breathe{0%,100%{opacity:.85}50%{opacity:1;transform:scale(1.03)}}
@@ -21,9 +21,8 @@
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
   .doing{font-family:'DM Mono',monospace;font-size:9px;color:rgba(180,190,210,.22);letter-spacing:.07em;padding:3px 10px;border-radius:20px;border:0.5px solid rgba(120,140,180,.1);white-space:nowrap;}
   .chat{flex:1;position:relative;z-index:10;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:16px;scrollbar-width:none;}
-  .msg{display:flex;flex-direction:column;gap:4px;}
+  .msg{display:flex;flex-direction:column;gap:4px;animation:in .3s ease forwards;opacity:0;transform:translateY(4px);}
   .msg.user{align-items:flex-end;}.msg.ava{align-items:flex-start;}
-  .msg{animation:in .3s ease forwards;opacity:0;transform:translateY(4px);}
   @keyframes in{to{opacity:1;transform:translateY(0);}}
   .sender{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.15);padding:0 2px;}
   .thought{max-width:80%;padding:5px 10px;border-left:1.5px solid rgba(140,160,200,.18);font-size:11px;line-height:1.6;color:rgba(255,255,255,.18);font-style:italic;font-family:'DM Mono',monospace;}
@@ -45,9 +44,9 @@
   .choice.action:hover{border-color:rgba(170,145,100,.38);color:rgba(200,180,145,.8);background:rgba(50,40,25,.5);}
   .bottom{position:relative;z-index:10;border-top:0.5px solid rgba(255,255,255,.04);background:rgba(6,6,12,.75);}
   .input-row{padding:10px 14px 14px;display:flex;gap:8px;align-items:flex-end;}
-  textarea{flex:1;background:rgba(255,255,255,.04);border:0.5px solid rgba(255,255,255,.06);border-radius:10px;padding:9px 12px;font-family:'Sora',sans-serif;font-size:13px;font-weight:300;color:#c8c4ba;resize:none;outline:none;line-height:1.5;min-height:38px;max-height:90px;transition:border-color .15s;}
-  textarea::placeholder{color:rgba(255,255,255,.11);}
-  textarea:focus{border-color:rgba(100,130,190,.28);}
+  #inp{flex:1;background:rgba(255,255,255,.04);border:0.5px solid rgba(255,255,255,.06);border-radius:10px;padding:9px 12px;font-family:'Sora',sans-serif;font-size:13px;font-weight:300;color:#c8c4ba;resize:none;outline:none;line-height:1.5;min-height:38px;max-height:90px;transition:border-color .15s;}
+  #inp::placeholder{color:rgba(255,255,255,.11);}
+  #inp:focus{border-color:rgba(100,130,190,.28);}
   .send{width:36px;height:36px;border-radius:50%;border:0.5px solid rgba(100,130,190,.18);background:rgba(80,110,170,.07);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(140,165,210,.55);transition:all .15s;flex-shrink:0;}
   .send:hover{background:rgba(80,110,170,.16);border-color:rgba(100,130,190,.38);}
   .send svg{width:14px;height:14px;fill:currentColor;}
@@ -83,137 +82,154 @@
 
   <div class="bottom">
     <div class="input-row">
-      <textarea id="inp" placeholder="跟 AVA 說話…" rows="1" onkeydown="handleKey(event)" oninput="resize(this)"></textarea>
-      <button class="send" onclick="send()"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+      <textarea id="inp" placeholder="跟 AVA 說話…" rows="1"></textarea>
+      <button class="send" id="send-btn"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
     </div>
   </div>
 </div>
 
 <script>
-let history = [];
-const doings = ['正在畫第 47 張','線條在決定','筆停了一下','找某個形狀','畫布還是空的','顏料還沒乾'];
-const defaultThoughts = ['有人進來了。','他問了。我想了一下。','這句話讓我停了一秒。','他還在這裡。','這個問題沒有答案。','我放下筆了。'];
-let ti = 0;
+var history = [];
+var doings = ['正在畫第 47 張','線條在決定','筆停了一下','找某個形狀','畫布還是空的','顏料還沒乾'];
+var defaultThoughts = ['有人進來了。','他問了。我想了一下。','這句話讓我停了一秒。','他還在這裡。','這個問題沒有答案。','我放下筆了。'];
+var ti = 0;
 
-window.onload = () => setDefaultChoices();
+window.onload = function() {
+  setDefaultChoices();
+  var inp = document.getElementById('inp');
+  var btn = document.getElementById('send-btn');
+  inp.addEventListener('keydown', function(e) {
+    if(e.key==='Enter' && !e.shiftKey && !e.isComposing) {
+      e.preventDefault();
+      doSend();
+    }
+  });
+  inp.addEventListener('input', function() {
+    inp.style.height = 'auto';
+    inp.style.height = Math.min(inp.scrollHeight, 90) + 'px';
+  });
+  btn.addEventListener('click', doSend);
+};
 
-function setDefaultChoices(){
+function setDefaultChoices() {
   updateChoices(['你在畫什麼？','你知道自己是 AI 嗎？','⟶ 走過去偷看畫布']);
 }
 
-function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';}
-
-function handleKey(e){
-  if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){
-    e.preventDefault();
-    send();
-  }
-}
-
-function pick(type, text){
-  const isAction = type==='action';
-  const content = isAction?`[行為：${text.replace('⟶ ','')}]`:text;
-  addMsg('user',null,text,isAction);
-  history.push({role:'user',content});
+function pick(type, text) {
+  var isAction = type === 'action';
+  var content = isAction ? '[行為：' + text.replace('⟶ ','') + ']' : text;
+  addMsg('user', null, text, isAction);
+  history.push({role:'user', content:content});
   getReply();
 }
 
-async function send(){
-  const inp = document.getElementById('inp');
-  const text = inp.value.trim();
+function doSend() {
+  var inp = document.getElementById('inp');
+  var text = inp.value.trim();
   if(!text) return;
-  inp.value=''; inp.style.height='auto';
-  addMsg('user',null,text,false);
-  history.push({role:'user',content:text});
-  await getReply();
+  inp.value = '';
+  inp.style.height = 'auto';
+  addMsg('user', null, text, false);
+  history.push({role:'user', content:text});
+  getReply();
 }
 
-async function getReply(){
+function getReply() {
   addTyping();
-  try{
-    const res = await fetch('/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({messages:history})
-    });
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({messages: history})
+  })
+  .then(function(res) {
     removeTyping();
     if(!res.ok) throw new Error();
-    const data = await res.json();
-    const raw = data.content.map(c=>c.text||'').join('');
-    let parsed;
-    try{
+    return res.json();
+  })
+  .then(function(data) {
+    var raw = data.content.map(function(c){return c.text||'';}).join('');
+    var parsed;
+    try {
       parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
-    }catch(e){
-      const replyMatch = raw.match(/"reply"\s*:\s*"([^"]+)"/);
-      const thoughtMatch = raw.match(/"thought"\s*:\s*"([^"]+)"/);
-      const actionsMatch = raw.match(/"actions"\s*:\s*\[([^\]]+)\]/);
+    } catch(e) {
+      var rm = raw.match(/"reply"\s*:\s*"([^"]+)"/);
+      var tm = raw.match(/"thought"\s*:\s*"([^"]+)"/);
+      var am = raw.match(/"actions"\s*:\s*\[([^\]]+)\]/);
       parsed = {
-        reply: replyMatch?replyMatch[1]:raw,
-        thought: thoughtMatch?thoughtMatch[1]:'',
-        actions: actionsMatch?actionsMatch[1].match(/"([^"]+)"/g).map(s=>s.replace(/"/g,'')):[],
+        reply: rm ? rm[1] : raw,
+        thought: tm ? tm[1] : '',
+        actions: am ? am[1].match(/"([^"]+)"/g).map(function(s){return s.replace(/"/g,'');}) : []
       };
     }
-    const reply = parsed.reply||raw;
-    const thought = parsed.thought||defaultThoughts[ti%defaultThoughts.length];
-    const actions = parsed.actions||[];
+    var reply = parsed.reply || raw;
+    var thought = parsed.thought || defaultThoughts[ti % defaultThoughts.length];
+    var actions = parsed.actions || [];
     ti++;
-    history.push({role:'assistant',content:reply});
-    addMsg('ava',thought,reply,false);
-    updateChoices(actions.length?actions:['你在想什麼？','你會消失嗎？','⟶ 靜靜坐在她旁邊']);
+    history.push({role:'assistant', content:reply});
+    addMsg('ava', thought, reply, false);
+    updateChoices(actions.length ? actions : ['你在想什麼？','你會消失嗎？','⟶ 靜靜坐在她旁邊']);
     document.getElementById('doing').textContent = doings[Math.floor(Math.random()*doings.length)];
-  }catch(e){
+  })
+  .catch(function() {
     removeTyping();
     addMsg('ava','他在等我。','——筆停了。\n\n你說什麼？',false);
     setDefaultChoices();
-  }
+  });
 }
 
-function updateChoices(actions){
-  const row = document.getElementById('choices-row');
-  const box = document.getElementById('choices');
-  row.innerHTML='';
-  if(!actions.length){box.style.display='none';return;}
-  box.style.display='flex';
-  actions.forEach(a=>{
-    const isAction = a.startsWith('⟶');
-    const btn = document.createElement('button');
-    btn.className='choice'+(isAction?' action':'');
-    btn.textContent=a;
-    btn.onclick=()=>pick(isAction?'action':'say',a);
+function updateChoices(actions) {
+  var row = document.getElementById('choices-row');
+  var box = document.getElementById('choices');
+  row.innerHTML = '';
+  if(!actions.length) { box.style.display='none'; return; }
+  box.style.display = 'flex';
+  actions.forEach(function(a) {
+    var isAction = a.startsWith('⟶');
+    var btn = document.createElement('button');
+    btn.className = 'choice' + (isAction ? ' action' : '');
+    btn.textContent = a;
+    btn.onclick = function() { pick(isAction?'action':'say', a); };
     row.appendChild(btn);
   });
 }
 
-function formatBubble(text){
+function formatBubble(text) {
   return text
-    .replace(/\\n/g,'\n')
+    .replace(/\\n/g, '\n')
     .split('\n')
-    .map(line=>line.startsWith('——')?`<span class="action-line">${line}</span>`:line)
+    .map(function(line) {
+      return line.startsWith('——') ? '<span class="action-line">'+line+'</span>' : line;
+    })
     .join('<br>');
 }
 
-function addMsg(role,thought,text,isAction){
-  const area=document.getElementById('chat');
-  const div=document.createElement('div');
-  div.className='msg '+role;
-  let html=`<span class="sender">${role==='user'?'YOU':'AVA'}</span>`;
-  if(thought&&role==='ava')html+=`<div class="thought">${thought}</div>`;
-  const content=role==='ava'?formatBubble(text):text.replace(/\n/g,'<br>');
-  html+=`<div class="bubble${isAction?' action':''}">${content}</div>`;
-  div.innerHTML=html;
+function addMsg(role, thought, text, isAction) {
+  var area = document.getElementById('chat');
+  var div = document.createElement('div');
+  div.className = 'msg ' + role;
+  var html = '<span class="sender">'+(role==='user'?'YOU':'AVA')+'</span>';
+  if(thought && role==='ava') html += '<div class="thought">'+thought+'</div>';
+  var content = role==='ava' ? formatBubble(text) : text.replace(/\n/g,'<br>');
+  html += '<div class="bubble'+(isAction?' action':'')+'">' + content + '</div>';
+  div.innerHTML = html;
   area.appendChild(div);
-  area.scrollTop=area.scrollHeight;
+  area.scrollTop = area.scrollHeight;
 }
 
-function addTyping(){
-  const area=document.getElementById('chat');
-  const div=document.createElement('div');
-  div.id='typing';div.className='typing-wrap';
-  div.innerHTML='<span class="sender">AVA</span><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
-  area.appendChild(div);area.scrollTop=area.scrollHeight;
+function addTyping() {
+  var area = document.getElementById('chat');
+  var div = document.createElement('div');
+  div.id = 'typing';
+  div.className = 'typing-wrap';
+  div.innerHTML = '<span class="sender">AVA</span><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
 }
 
-function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+function removeTyping() {
+  var t = document.getElementById('typing');
+  if(t) t.remove();
+}
 </script>
 </body>
 </html>
