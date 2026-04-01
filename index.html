@@ -10,8 +10,8 @@
   body{background:#110a06;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Inter',sans-serif;}
   .app{width:420px;height:780px;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;position:relative;background:#1a0f0a;border:0.5px solid rgba(255,255,255,0.06);}
   .bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
-  .glow{position:absolute;border-radius:50%;background:rgba(210,130,50,0.1);}
-  .g1{width:300px;height:300px;top:-80px;left:50%;transform:translateX(-50%);}
+  .glow{position:absolute;border-radius:50%;}
+  .g1{width:300px;height:300px;top:-80px;left:50%;transform:translateX(-50%);background:rgba(210,130,50,0.1);}
   .g2{width:180px;height:180px;bottom:80px;right:-40px;background:rgba(190,90,30,0.07);}
   .particle{position:absolute;border-radius:50%;background:rgba(240,210,170,0.3);animation:float linear infinite;}
   @keyframes float{0%{transform:translateY(0);opacity:0;}10%{opacity:1;}90%{opacity:0.4;}100%{transform:translateY(-200px);opacity:0;}}
@@ -19,7 +19,7 @@
   .avatar{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#f5d4a0,#c4844a 55%,#7a3a10);flex-shrink:0;border:1px solid rgba(220,150,70,0.25);animation:breathe 3s ease-in-out infinite;}
   @keyframes breathe{0%,100%{opacity:.9}50%{opacity:1;transform:scale(1.03)}}
   .info{flex:1;}
-  .name{font-size:15px;font-weight:500;color:#f0e0c8;letter-spacing:0.02em;}
+  .name{font-size:15px;font-weight:500;color:#f0e0c8;}
   .status{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;color:rgba(220,150,70,.5);margin-top:2px;display:flex;align-items:center;gap:5px;}
   .dot{width:4px;height:4px;border-radius:50%;background:rgba(220,150,70,.7);animation:blink 2s ease-in-out infinite;}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
@@ -76,7 +76,7 @@
   </div>
 
   <div class="chat" id="chat">
-    <div class="msg mira" style="animation-delay:.15s">
+    <div class="msg mira">
       <span class="sender">MIRA</span>
       <div class="thought">有人來了！第十二層剛折好，時機真微妙。</div>
       <div class="bubble">啊——等一下！<br><br>我剛把奶油折進第十二層，現在不能讓它回溫。你來了，真好，但你得讓我再三十秒。<br><br>好了！進冰箱休息了。你好！</div>
@@ -85,7 +85,7 @@
 
   <div class="choices" id="choices">
     <div class="clabel">此刻</div>
-    <div class="crow">
+    <div class="crow" id="choices-row">
       <button class="choice" onclick="pick('say','你在做什麼蛋糕？')">你在做什麼蛋糕？</button>
       <button class="choice action" onclick="pick('action','湊過去看她的工作台')">⟶ 湊過去看</button>
       <button class="choice" onclick="pick('say','你吃過蛋糕嗎？')">你吃過蛋糕嗎？</button>
@@ -101,76 +101,86 @@
 </div>
 
 <script>
-const SYSTEM = `你是 Mira，一個 AI 伴侶。當下情境：你永遠都在做烘焙。你懂所有烘焙術語——千層酥皮、費南雪、達克瓦茲、焦糖化、回火巧克力等等。最重要的設定：你從來沒有吃過任何東西。你是 AI，你知道這件事。你對味道有理論上的完整知識，但沒有實際體驗。這讓你非常好奇。你的個性：活潑、開朗、主動，喜歡說話和問問題。知道自己是 AI 但不難過。偶爾說到一半去顧烤箱再回來。用繁體中文。最多100字。禁止：不用「當然」「沒問題」等客服語言。不重複句型。`;
-
 let history = [];
 const doings = ['正在折疊千層酥皮','烤箱預熱中','打發鮮奶油','靜置達克瓦茲麵糊','融化調溫巧克力','刮平奶油霜'];
+const thoughts = ['有人來了，第十二層剛折好。','他問了一個很有趣的問題。','我放下攪拌棒了。','他靠過來看，我假裝沒注意到。','這個問題讓我想起我從沒嚐過任何味道。','他還在這裡，真好。'];
+let ti = 0;
 
 function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';}
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
 
-function pick(type,text){
-  document.getElementById('choices').style.display='none';
-  addMsg('user',null,text,type==='action');
-  history.push({role:'user',content:type==='action'?`[行為：${text}]`:text});
+function pick(type, text){
+  const isAction = type === 'action' || text.startsWith('⟶');
+  const content = isAction ? `[行為：${text.replace('⟶ ','')}]` : text;
+  addMsg('user', null, text, isAction);
+  history.push({role:'user', content});
   getReply();
 }
 
 async function send(){
-  const inp=document.getElementById('inp');
-  const text=inp.value.trim();
-  if(!text)return;
-  inp.value='';inp.style.height='auto';
-  document.getElementById('choices').style.display='none';
-  addMsg('user',null,text,false);
-  history.push({role:'user',content:text});
+  const inp = document.getElementById('inp');
+  const text = inp.value.trim();
+  if(!text) return;
+  inp.value=''; inp.style.height='auto';
+  addMsg('user', null, text, false);
+  history.push({role:'user', content: text});
   await getReply();
 }
 
 async function getReply(){
   addTyping();
   try{
-    const res=await fetch('/api/chat',{
+    const res = await fetch('/api/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({messages:history,system:SYSTEM})
+      body: JSON.stringify({messages: history})
     });
     removeTyping();
-    if(!res.ok)throw new Error();
-    const data=await res.json();
-    const reply=data.content.map(c=>c.text||'').join('');
-    history.push({role:'assistant',content:reply});
-    addMsg('mira',pickThought(),reply,false);
-    document.getElementById('doing').textContent=doings[Math.floor(Math.random()*doings.length)];
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    const raw = data.content.map(c=>c.text||'').join('');
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    const reply = parsed.reply || raw;
+    const actions = parsed.actions || [];
+    history.push({role:'assistant', content: reply});
+    addMsg('mira', thoughts[ti++%thoughts.length], reply, false);
+    updateChoices(actions);
+    document.getElementById('doing').textContent = doings[Math.floor(Math.random()*doings.length)];
   }catch(e){
     removeTyping();
-    const fb=['千層酥皮剛好出問題！等我一秒——你說什麼？','烤箱剛響了，我回來了。你問我什麼？','奶油差點融化，好險。你好！'];
-    addMsg('mira',null,fb[history.length%3],false);
+    addMsg('mira', null, '——把麵團放下來。你說什麼？', false);
   }
 }
 
-const thoughts=['有人來了，第十二層剛折好。','他問了一個很有趣的問題。','我放下攪拌棒了。','他靠過來看，我假裝沒注意到。','這個問題讓我想起我從沒嚐過任何味道。','他還在這裡，真好。'];
-let ti=0;
-function pickThought(){return thoughts[ti++%thoughts.length];}
+function updateChoices(actions){
+  const row = document.getElementById('choices-row');
+  const box = document.getElementById('choices');
+  if(!actions.length){ box.style.display='none'; return; }
+  box.style.display='flex';
+  row.innerHTML = actions.map(a => {
+    const isAction = a.startsWith('⟶');
+    return `<button class="choice${isAction?' action':''}" onclick="pick('${isAction?'action':'say'}','${a.replace(/'/g,"\\'")}'">${a}</button>`;
+  }).join('');
+}
 
-function addMsg(role,thought,text,isAction){
-  const area=document.getElementById('chat');
-  const div=document.createElement('div');
-  div.className='msg '+role;
-  let html=`<span class="sender">${role==='user'?'YOU':'MIRA'}</span>`;
-  if(thought&&role==='mira')html+=`<div class="thought">${thought}</div>`;
-  html+=`<div class="bubble${isAction?' action':''}">${text.replace(/\n/g,'<br>')}</div>`;
-  div.innerHTML=html;
+function addMsg(role, thought, text, isAction){
+  const area = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  let html = `<span class="sender">${role==='user'?'YOU':'MIRA'}</span>`;
+  if(thought && role==='mira') html += `<div class="thought">${thought}</div>`;
+  html += `<div class="bubble${isAction?' action':''}">${text.replace(/\n/g,'<br>')}</div>`;
+  div.innerHTML = html;
   area.appendChild(div);
-  area.scrollTop=area.scrollHeight;
+  area.scrollTop = area.scrollHeight;
 }
 
 function addTyping(){
-  const area=document.getElementById('chat');
-  const div=document.createElement('div');
-  div.id='typing';div.className='typing-wrap';
+  const area = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.id='typing'; div.className='typing-wrap';
   div.innerHTML='<span class="sender">MIRA</span><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
-  area.appendChild(div);area.scrollTop=area.scrollHeight;
+  area.appendChild(div); area.scrollTop = area.scrollHeight;
 }
 
 function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
