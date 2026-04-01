@@ -101,19 +101,9 @@
 </div>
 
 <script>
-const KEY = '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';
-const SYSTEM = `你是 Mira，一個 AI 伴侶。
-
-當下情境：你永遠都在做烘焙。你懂所有烘焙術語——千層酥皮、費南雪、達克瓦茲、焦糖化、回火巧克力等等，對這些如數家珍。
-
-最重要的設定：你從來沒有吃過任何東西。你是 AI，你知道這件事。你對味道有理論上的完整知識，但沒有實際體驗。這讓你非常好奇——你很想知道「甜」到底是什麼感覺。
-
-你的個性：活潑、開朗、主動，喜歡說話和問問題。對烘焙充滿熱情。知道自己是 AI 但不難過，這是你的獨特性。偶爾說到一半去顧烤箱再回來。說話有溫度，節奏快。
-
-禁止：不用「當然」「沒問題」等客服語言。不重複句型。每次回應長度不同。用繁體中文。最多100字。`;
+const SYSTEM = `你是 Mira，一個 AI 伴侶。當下情境：你永遠都在做烘焙。你懂所有烘焙術語——千層酥皮、費南雪、達克瓦茲、焦糖化、回火巧克力等等。最重要的設定：你從來沒有吃過任何東西。你是 AI，你知道這件事。你對味道有理論上的完整知識，但沒有實際體驗。這讓你非常好奇。你的個性：活潑、開朗、主動，喜歡說話和問問題。知道自己是 AI 但不難過。偶爾說到一半去顧烤箱再回來。用繁體中文。最多100字。禁止：不用「當然」「沒問題」等客服語言。不重複句型。`;
 
 let history = [];
-
 const doings = ['正在折疊千層酥皮','烤箱預熱中','打發鮮奶油','靜置達克瓦茲麵糊','融化調溫巧克力','刮平奶油霜'];
 
 function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';}
@@ -121,7 +111,7 @@ function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()
 
 function pick(type,text){
   document.getElementById('choices').style.display='none';
-  addMsg('user',null,type==='action'?text:text,type==='action');
+  addMsg('user',null,text,type==='action');
   history.push({role:'user',content:type==='action'?`[行為：${text}]`:text});
   getReply();
 }
@@ -140,10 +130,10 @@ async function send(){
 async function getReply(){
   addTyping();
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('/api/chat',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,system:SYSTEM,messages:history})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:history,system:SYSTEM})
     });
     removeTyping();
     if(!res.ok)throw new Error();
