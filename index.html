@@ -186,6 +186,7 @@ function updateChoices(actions){
 
 function formatBubble(text){
   return text
+    .replace(/\\n/g, '\n')
     .split('\n')
     .map(line => {
       if(line.startsWith('——')){
