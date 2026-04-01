@@ -61,18 +61,18 @@
     <div class="avatar"></div>
     <div class="info">
       <div class="name">Aiden</div>
-      <div class="status"><div class="dot"></div>在線 · 車庫裡</div>
+      <div class="status"><div class="dot"></div>在線 · 廚房裡</div>
     </div>
-    <div class="doing" id="doing">正在拆化油器</div>
+    <div class="doing" id="doing">正在煎牛排</div>
   </div>
 
   <div class="chat" id="chat">
     <div class="msg aiden">
       <span class="sender">AIDEN</span>
-      <div class="thought">有人來了。不打算停下來。</div>
+      <div class="thought">有人來了。鍋子還在火上。</div>
       <div class="bubble">
-        <span class="action-line">——沒有抬頭。</span>
-        鏈條鬆了。正在弄。<br><br>你來了。
+        <span class="action-line">——沒有轉頭。</span>
+        火候不能停。你來了就先坐著。<br><br>或者，把那個迷迭香遞給我。
       </div>
     </div>
   </div>
@@ -92,14 +92,14 @@
 
 <script>
 let history = [];
-const doings = ['正在拆化油器','調整鏈條中','檢查煞車皮','換火星塞','清洗汽缸','鎖緊螺絲'];
-const thoughts = ['有人來了。不打算停下來。','他問了。我想了一下。','手沒有停。','他靠過來了。','這個問題讓我放下扳手。','他還在這裡。'];
+const doings = ['正在煎牛排','熬高湯中','切蔬菜','醬汁收汁中','麵團在醒','擺盤中'];
+const thoughts = ['有人來了。鍋子還在火上。','他問了。我沒停手。','火候不能分心。','他靠過來了。','這個問題讓我放下了刀。','他還在這裡。'];
 let ti = 0;
 
 window.onload = () => setDefaultChoices();
 
 function setDefaultChoices(){
-  updateChoices(['你在修什麼？','⟶ 蹲下來看他在做什麼','把扳手遞給他']);
+  updateChoices(['你在做什麼？','把迷迭香遞給他','⟶ 湊過去看他在做什麼']);
 }
 
 function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';}
@@ -144,16 +144,16 @@ async function getReply(){
     const raw = data.content.map(c=>c.text||'').join('');
     let parsed;
     try{
-  const clean = raw.replace(/```json|```/g,'').trim();
-  parsed = JSON.parse(clean);
-}catch(e){
-  const replyMatch = raw.match(/"reply"\s*:\s*"([^"]+)"/);
-  const actionsMatch = raw.match(/"actions"\s*:\s*\[([^\]]+)\]/);
-  parsed = {
-    reply: replyMatch ? replyMatch[1] : raw,
-    actions: actionsMatch ? actionsMatch[1].match(/"([^"]+)"/g).map(s=>s.replace(/"/g,'')) : []
-  };
-}
+      const clean = raw.replace(/```json|```/g,'').trim();
+      parsed = JSON.parse(clean);
+    }catch(e){
+      const replyMatch = raw.match(/"reply"\s*:\s*"([^"]+)"/);
+      const actionsMatch = raw.match(/"actions"\s*:\s*\[([^\]]+)\]/);
+      parsed = {
+        reply: replyMatch ? replyMatch[1] : raw,
+        actions: actionsMatch ? actionsMatch[1].match(/"([^"]+)"/g).map(s=>s.replace(/"/g,'')) : []
+      };
+    }
     const reply = parsed.reply||raw;
     const actions = parsed.actions||[];
     history.push({role:'assistant', content:reply});
@@ -175,7 +175,7 @@ function updateChoices(actions){
   box.style.display='flex';
   actions.forEach(a=>{
     const isAction = a.startsWith('⟶');
-    const isTool = !isAction&&(a.includes('遞')||a.includes('拿')||a.includes('扳手')||a.includes('工具')||a.includes('火星塞')||a.includes('套筒')||a.includes('鏈條'));
+    const isTool = !isAction&&(a.includes('遞')||a.includes('拿')||a.includes('幫')||a.includes('攪拌')||a.includes('嚐')||a.includes('食材')||a.includes('迷迭香')||a.includes('鹽')||a.includes('醬'));
     const btn = document.createElement('button');
     btn.className = 'choice'+(isAction?' action':isTool?' tool':'');
     btn.textContent = a;
