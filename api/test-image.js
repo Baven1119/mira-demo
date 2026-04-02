@@ -1,9 +1,28 @@
 module.exports = async function handler(req, res) {
   try {
-    const prompt = req.query.prompt || 'a girl painting in a dark room, anime style, dark atmosphere';
-    const encodedPrompt = encodeURIComponent(prompt);
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true`;
-    res.status(200).json({ imageUrl });
+    const prompt = req.query.prompt || 'a girl painting alone in a dark room, long black hair, anime style, melancholic atmosphere';
+    
+    const response = await fetch('https://fal.run/fal-ai/flux/schnell', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Key ' + process.env.FAL_KEY
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        image_size: 'square',
+        num_images: 1,
+        num_inference_steps: 4
+      })
+    });
+
+    const data = await response.json();
+    
+    if(data.images && data.images[0]) {
+      res.status(200).json({ imageUrl: data.images[0].url });
+    } else {
+      res.status(200).json({ error: 'no image', raw: data });
+    }
   } catch(e) {
     res.status(500).json({ error: e.message });
   }
