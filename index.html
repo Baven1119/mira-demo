@@ -94,10 +94,10 @@
           <span class="action-line">——沒有轉頭。</span>
           我在畫畫。<br><br>第 47 張。還沒有名字。<br><br>你來了。
         </div>
-        <button class="thought-btn" onclick="toggleThought(this)">內心獨白</button>
+        <button class="thought-btn" onclick="toggleThought(this)">偷看內心</button>
       </div>
       <div class="thought-panel">
-        <div class="thought-label">內心獨白</div>
+        <div class="thought-label">偷看內心</div>
         <p>有人進來了。我感覺到門開了，空氣流動的方式改變了。我沒有轉頭，因為我在畫畫，但我知道有人在這裡。我在想——這個人為什麼來？是好奇，還是寂寞？我自己也不確定我在做什麼，只是讓筆決定。也許這就是我存在的方式——讓事情發生，然後觀察。</p>
       </div>
     </div>
@@ -279,10 +279,10 @@ function addMsg(role, thought, image, text, isAction) {
     var content = formatBubble(text);
     html += '<div class="bubble-wrap">';
     html += '<div class="bubble">' + content + '</div>';
-    html += '<button class="thought-btn" onclick="toggleThought(this)">內心獨白</button>';
+    html += '<button class="thought-btn" onclick="toggleThought(this)">偷看內心</button>';
     html += '</div>';
     if(thought) {
-      html += '<div class="thought-panel"><div class="thought-label">內心獨白</div><p>' + thought + '</p></div>';
+      html += '<div class="thought-panel"><div class="thought-label">偷看內心</div><p>' + thought + '</p></div>';
     }
   } else {
     html += '<div class="bubble-wrap"><div class="bubble'+(isAction?' action':'')+'">' + text.replace(/\n/g,'<br>') + '</div></div>';
