@@ -50,11 +50,20 @@
   .send{width:36px;height:36px;border-radius:50%;border:0.5px solid rgba(100,130,190,.18);background:rgba(80,110,170,.07);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(140,165,210,.55);transition:all .15s;flex-shrink:0;}
   .send:hover{background:rgba(80,110,170,.16);border-color:rgba(100,130,190,.38);}
   .send svg{width:14px;height:14px;fill:currentColor;}
+  .test-btn{position:absolute;top:12px;right:12px;z-index:999;padding:5px 10px;font-size:10px;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.12);border-radius:8px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.08em;}
+  .test-btn:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);}
+  .test-result{position:absolute;top:44px;right:12px;z-index:999;max-width:140px;}
+  .test-result img{width:140px;border-radius:8px;border:0.5px solid rgba(255,255,255,0.1);}
+  .test-result p{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);word-break:break-all;}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="bg"></div>
+
+  <button class="test-btn" id="test-img-btn">測試圖片</button>
+  <div class="test-result" id="test-result"></div>
+
   <div class="top">
     <div class="avatar"></div>
     <div class="info">
@@ -109,6 +118,27 @@ window.onload = function() {
     inp.style.height = Math.min(inp.scrollHeight, 90) + 'px';
   });
   btn.addEventListener('click', doSend);
+
+  document.getElementById('test-img-btn').addEventListener('click', function() {
+    var result = document.getElementById('test-result');
+    result.innerHTML = '<p>生成中…</p>';
+    fetch('/api/test-image')
+      .then(function(r){ return r.json(); })
+      .then(function(d) {
+        console.log(d);
+        if(d.predictions && d.predictions[0] && d.predictions[0].bytesBase64Encoded) {
+          var img = document.createElement('img');
+          img.src = 'data:image/png;base64,' + d.predictions[0].bytesBase64Encoded;
+          result.innerHTML = '';
+          result.appendChild(img);
+        } else {
+          result.innerHTML = '<p>' + JSON.stringify(d).substring(0, 100) + '</p>';
+        }
+      })
+      .catch(function(e) {
+        result.innerHTML = '<p>失敗：' + e.message + '</p>';
+      });
+  });
 };
 
 function setDefaultChoices() {
@@ -230,31 +260,6 @@ function removeTyping() {
   var t = document.getElementById('typing');
   if(t) t.remove();
 }
-  document.getElementById('test-img-btn').addEventListener('click', function() {
-  document.getElementById('test-img-result').textContent = '生成中...';
-  fetch('/api/test-image')
-    .then(function(r){return r.json();})
-    .then(function(d){
-      console.log(d);
-      if(d.predictions && d.predictions[0] && d.predictions[0].bytesBase64Encoded) {
-        var img = document.createElement('img');
-        img.src = 'data:image/png;base64,' + d.predictions[0].bytesBase64Encoded;
-        img.style = 'width:120px;border-radius:8px;';
-        var r = document.getElementById('test-img-result');
-        r.innerHTML = '';
-        r.appendChild(img);
-      } else {
-        document.getElementById('test-img-result').textContent = JSON.stringify(d);
-      }
-    })
-    .catch(function(e){
-      document.getElementById('test-img-result').textContent = '失敗：' + e.message;
-    });
-});
 </script>
-  <div style="position:absolute;top:10px;right:10px;z-index:999;">
-  <button id="test-img-btn" style="padding:6px 12px;font-size:11px;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.5);cursor:pointer;">測試圖片</button>
-  <div id="test-img-result" style="margin-top:8px;"></div>
-</div>
 </body>
 </html>
