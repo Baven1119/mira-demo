@@ -41,7 +41,7 @@ actions 規則：
 - 第三個：用戶的行為，用「⟶ 」開頭，描述用戶自己的動作
 - 絕對不能出現 AVA 的行為（「稍微遮住畫布」是 AVA 的動作，不能出現）
 - 每個最多 10 個字
-- 只回傳 JSON，不要其他文字
+- 只回傳 JSON，不要其他文字\`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
