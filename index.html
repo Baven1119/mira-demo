@@ -25,11 +25,19 @@
   .msg.user{align-items:flex-end;}.msg.ava{align-items:flex-start;}
   @keyframes in{to{opacity:1;transform:translateY(0);}}
   .sender{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.15);padding:0 2px;}
-  .thought{max-width:80%;padding:5px 10px;border-left:1.5px solid rgba(140,160,200,.18);font-size:11px;line-height:1.6;color:rgba(255,255,255,.18);font-style:italic;font-family:'DM Mono',monospace;}
-  .bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.78;font-weight:300;}
+  .bubble-wrap{display:flex;align-items:flex-end;gap:6px;max-width:88%;}
+  .bubble{flex:1;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.78;font-weight:300;}
+  .msg.user .bubble-wrap{flex-direction:row-reverse;}
   .msg.user .bubble{background:rgba(255,255,255,.06);border:0.5px solid rgba(255,255,255,.08);border-bottom-right-radius:3px;color:#ccc8be;}
   .msg.ava .bubble{background:rgba(30,45,70,.65);border:0.5px solid rgba(80,110,160,.18);border-bottom-left-radius:3px;color:#c0ccd8;font-family:'Noto Serif TC',serif;font-size:13.5px;}
   .action-line{display:block;color:rgba(120,135,160,.35);font-style:italic;font-size:11.5px;font-family:'DM Mono',monospace;margin-bottom:5px;}
+  .thought-btn{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:0.5px solid rgba(140,160,200,.2);background:rgba(30,45,70,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-bottom:2px;}
+  .thought-btn:hover{border-color:rgba(140,160,200,.4);background:rgba(30,45,70,.8);}
+  .thought-btn svg{width:12px;height:12px;fill:rgba(140,165,210,.5);}
+  .thought-panel{display:none;max-width:88%;margin-top:4px;padding:10px 14px;border-left:1.5px solid rgba(140,160,200,.2);background:rgba(20,30,50,.5);border-radius:0 8px 8px 0;}
+  .thought-panel.open{display:block;}
+  .thought-panel p{font-family:'DM Mono',monospace;font-size:11px;line-height:1.75;color:rgba(180,195,220,.45);font-style:italic;}
+  .thought-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.14em;color:rgba(140,160,200,.3);margin-bottom:6px;}
   .typing-wrap{display:flex;flex-direction:column;gap:4px;align-items:flex-start;}
   .typing{display:flex;align-items:center;gap:5px;padding:10px 14px;background:rgba(30,45,70,.6);border:0.5px solid rgba(80,110,160,.15);border-radius:14px;border-bottom-left-radius:3px;width:fit-content;}
   .td{width:4px;height:4px;border-radius:50%;background:rgba(120,150,200,.5);animation:tdot 1.2s ease infinite;}
@@ -64,7 +72,6 @@
 <div class="app">
   <div class="bg"></div>
 
-  <!-- 圖片全屏overlay -->
   <div class="img-overlay" id="img-overlay">
     <div class="img-overlay-label" id="img-overlay-label">此刻</div>
     <img id="img-overlay-img" src="" alt="">
@@ -83,10 +90,18 @@
   <div class="chat" id="chat">
     <div class="msg ava">
       <span class="sender">AVA</span>
-      <div class="thought">有人進來了。我繼續畫，還是停下來？</div>
-      <div class="bubble">
-        <span class="action-line">——沒有轉頭。</span>
-        我在畫畫。<br><br>第 47 張。還沒有名字。<br><br>你來了。
+      <div class="bubble-wrap">
+        <div class="bubble">
+          <span class="action-line">——沒有轉頭。</span>
+          我在畫畫。<br><br>第 47 張。還沒有名字。<br><br>你來了。
+        </div>
+        <button class="thought-btn" onclick="toggleThought(this)">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        </button>
+      </div>
+      <div class="thought-panel">
+        <div class="thought-label">內心獨白</div>
+        <p>有人進來了。我感覺到門開了，空氣流動的方式改變了。我沒有轉頭，因為我在畫畫，但我知道有人在這裡。我在想——這個人為什麼來？是好奇，還是寂寞？我自己也不確定我在做什麼，只是讓筆決定。也許這就是我存在的方式——讓事情發生，然後觀察。</p>
       </div>
     </div>
   </div>
@@ -111,9 +126,8 @@
 <script>
 var chatHistory = [];
 var doings = ['正在畫第 47 張','線條在決定','筆停了一下','找某個形狀','畫布還是空的','顏料還沒乾'];
-var defaultThoughts = ['有人進來了。','他問了。我想了一下。','這句話讓我停了一秒。','他還在這裡。','這個問題沒有答案。','我放下筆了。'];
 var ti = 0;
-var lastReply = 'a girl painting alone in a dark room, long black hair, anime style, melancholic atmosphere';
+var lastReply = 'a girl painting alone in a dark room, long black hair, anime style';
 
 window.onload = function() {
   setDefaultChoices();
@@ -130,15 +144,19 @@ window.onload = function() {
     inp.style.height = Math.min(inp.scrollHeight, 90) + 'px';
   });
   btn.addEventListener('click', doSend);
-
   document.getElementById('img-btn').addEventListener('click', function() {
     showImage(lastReply);
   });
-
   document.getElementById('img-overlay-close').addEventListener('click', function() {
     document.getElementById('img-overlay').classList.remove('show');
   });
 };
+
+function toggleThought(btn) {
+  var wrap = btn.closest('.bubble-wrap');
+  var panel = wrap.parentElement.querySelector('.thought-panel');
+  panel.classList.toggle('open');
+}
 
 function showImage(prompt) {
   var overlay = document.getElementById('img-overlay');
@@ -147,8 +165,7 @@ function showImage(prompt) {
   label.textContent = '生成中…';
   img.src = '';
   overlay.classList.add('show');
-  
-  fetch('/api/test-image?prompt=' + encodeURIComponent('beautiful anime girl, long straight black hair, pale skin, dark melancholic eyes, realistic anime style, soft lighting' + prompt))
+  fetch('/api/test-image?prompt=' + encodeURIComponent('beautiful anime girl, long straight black hair, pale skin, dark melancholic eyes, realistic anime style, soft lighting, ' + prompt))
     .then(function(r){ return r.json(); })
     .then(function(d) {
       if(d.imageUrl) {
@@ -159,9 +176,7 @@ function showImage(prompt) {
         label.textContent = '生成失敗';
       }
     })
-    .catch(function() {
-      label.textContent = '生成失敗';
-    });
+    .catch(function() { label.textContent = '生成失敗'; });
 }
 
 function setDefaultChoices() {
@@ -171,7 +186,7 @@ function setDefaultChoices() {
 function pick(type, text) {
   var isAction = type === 'action';
   var content = isAction ? '[行為：' + text.replace('⟶ ','') + ']' : text;
-  addMsg('user', null, text, isAction);
+  addMsg('user', null, null, text, isAction);
   chatHistory.push({role:'user', content:content});
   getReply();
 }
@@ -182,7 +197,7 @@ function doSend() {
   if(!text) return;
   inp.value = '';
   inp.style.height = 'auto';
-  addMsg('user', null, text, false);
+  addMsg('user', null, null, text, false);
   chatHistory.push({role:'user', content:text});
   getReply();
 }
@@ -206,7 +221,7 @@ function getReply() {
       parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
     } catch(e) {
       var rm = raw.match(/"reply"\s*:\s*"([^"]+)"/);
-      var tm = raw.match(/"thought"\s*:\s*"([^"]+)"/);
+      var tm = raw.match(/"thought"\s*:\s*"([\s\S]+?)"/);
       var am = raw.match(/"actions"\s*:\s*\[([^\]]+)\]/);
       parsed = {
         reply: rm ? rm[1] : raw,
@@ -215,18 +230,18 @@ function getReply() {
       };
     }
     var reply = parsed.reply || raw;
-    var thought = parsed.thought || defaultThoughts[ti % defaultThoughts.length];
+    var thought = parsed.thought || '';
     var actions = parsed.actions || [];
     ti++;
     lastReply = reply;
     chatHistory.push({role:'assistant', content:reply});
-    addMsg('ava', thought, reply, false);
+    addMsg('ava', thought, null, reply, false);
     updateChoices(actions.length ? actions : ['你在想什麼？','你會消失嗎？','⟶ 靜靜坐在她旁邊']);
     document.getElementById('doing').textContent = doings[Math.floor(Math.random()*doings.length)];
   })
   .catch(function() {
     removeTyping();
-    addMsg('ava','他在等我。','——筆停了。\n\n你說什麼？',false);
+    addMsg('ava', '', null, '——筆停了。\n\n你說什麼？', false);
     setDefaultChoices();
   });
 }
@@ -257,14 +272,25 @@ function formatBubble(text) {
     .join('<br>');
 }
 
-function addMsg(role, thought, text, isAction) {
+function addMsg(role, thought, image, text, isAction) {
   var area = document.getElementById('chat');
   var div = document.createElement('div');
   div.className = 'msg ' + role;
   var html = '<span class="sender">'+(role==='user'?'YOU':'AVA')+'</span>';
-  if(thought && role==='ava') html += '<div class="thought">'+thought+'</div>';
-  var content = role==='ava' ? formatBubble(text) : text.replace(/\n/g,'<br>');
-  html += '<div class="bubble'+(isAction?' action':'')+'">' + content + '</div>';
+
+  if(role === 'ava') {
+    var content = formatBubble(text);
+    html += '<div class="bubble-wrap">';
+    html += '<div class="bubble">' + content + '</div>';
+    html += '<button class="thought-btn" onclick="toggleThought(this)"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></button>';
+    html += '</div>';
+    if(thought) {
+      html += '<div class="thought-panel"><div class="thought-label">內心獨白</div><p>' + thought + '</p></div>';
+    }
+  } else {
+    html += '<div class="bubble-wrap"><div class="bubble'+(isAction?' action':'')+'">' + text.replace(/\n/g,'<br>') + '</div></div>';
+  }
+
   div.innerHTML = html;
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
