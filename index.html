@@ -148,7 +148,7 @@ function showImage(prompt) {
   img.src = '';
   overlay.classList.add('show');
   
-  fetch('/api/test-image?prompt=' + encodeURIComponent('anime style, dark atmospheric, long black hair girl, ' + prompt))
+  fetch('/api/test-image?prompt=' + encodeURIComponent('beautiful anime girl, long straight black hair, pale skin, dark melancholic eyes, realistic anime style, soft lighting' + prompt))
     .then(function(r){ return r.json(); })
     .then(function(d) {
       if(d.imageUrl) {
