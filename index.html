@@ -141,17 +141,9 @@ window.onload = function() {
 };
 
 function showImage(prompt) {
-  var overlay = document.getElementById('img-overlay');
-  var img = document.getElementById('img-overlay-img');
-  var label = document.getElementById('img-overlay-label');
-  label.textContent = '生成中…';
-  img.src = '';
-  overlay.classList.add('show');
   var encodedPrompt = encodeURIComponent('anime style, dark atmospheric, long black hair girl, ' + prompt);
   var url = 'https://image.pollinations.ai/prompt/' + encodedPrompt + '?width=512&height=512&nologo=true&seed=' + Date.now();
-  img.onload = function() { label.textContent = '此刻'; };
-  img.onerror = function() { label.textContent = '生成失敗'; };
-  img.src = url;
+  window.open(url, '_blank');
 }
 
 function setDefaultChoices() {
