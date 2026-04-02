@@ -8,8 +8,3 @@ module.exports = async function handler(req, res) {
     res.status(500).json({ error: e.message });
   }
 }
-```
-
-Commit 好，然後在瀏覽器打開：
-```
-mira-demo-one.vercel.app/api/test-image
