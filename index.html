@@ -42,6 +42,14 @@
   .choice:hover{border-color:rgba(100,130,190,.38);color:rgba(160,190,230,.85);background:rgba(30,50,90,.5);}
   .choice.action{border-color:rgba(140,120,90,.18);color:rgba(180,165,135,.3);font-style:italic;}
   .choice.action:hover{border-color:rgba(170,145,100,.38);color:rgba(200,180,145,.8);background:rgba(50,40,25,.5);}
+  .img-bar{position:relative;z-index:10;padding:6px 16px;border-top:0.5px solid rgba(255,255,255,.04);}
+  .img-btn{width:100%;padding:7px;border-radius:10px;border:0.5px solid rgba(140,160,200,.15);background:rgba(30,45,70,.3);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:rgba(140,165,210,.45);cursor:pointer;transition:all .15s;}
+  .img-btn:hover{border-color:rgba(140,160,200,.3);color:rgba(160,190,235,.7);background:rgba(30,45,70,.5);}
+  .img-overlay{display:none;position:absolute;inset:0;z-index:100;background:rgba(6,6,12,.92);align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+  .img-overlay.show{display:flex;}
+  .img-overlay img{max-width:80%;max-height:60%;border-radius:12px;border:0.5px solid rgba(255,255,255,.1);}
+  .img-overlay-close{padding:7px 20px;border-radius:20px;border:0.5px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.35);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;cursor:pointer;}
+  .img-overlay-label{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,.2);letter-spacing:.1em;}
   .bottom{position:relative;z-index:10;border-top:0.5px solid rgba(255,255,255,.04);background:rgba(6,6,12,.75);}
   .input-row{padding:10px 14px 14px;display:flex;gap:8px;align-items:flex-end;}
   #inp{flex:1;background:rgba(255,255,255,.04);border:0.5px solid rgba(255,255,255,.06);border-radius:10px;padding:9px 12px;font-family:'Sora',sans-serif;font-size:13px;font-weight:300;color:#c8c4ba;resize:none;outline:none;line-height:1.5;min-height:38px;max-height:90px;transition:border-color .15s;}
@@ -50,19 +58,18 @@
   .send{width:36px;height:36px;border-radius:50%;border:0.5px solid rgba(100,130,190,.18);background:rgba(80,110,170,.07);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(140,165,210,.55);transition:all .15s;flex-shrink:0;}
   .send:hover{background:rgba(80,110,170,.16);border-color:rgba(100,130,190,.38);}
   .send svg{width:14px;height:14px;fill:currentColor;}
-  .test-btn{position:absolute;top:12px;right:12px;z-index:999;padding:5px 10px;font-size:10px;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.12);border-radius:8px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.08em;}
-  .test-btn:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);}
-  .test-result{position:absolute;top:44px;right:12px;z-index:999;max-width:140px;}
-  .test-result img{width:140px;border-radius:8px;border:0.5px solid rgba(255,255,255,0.1);}
-  .test-result p{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);word-break:break-all;}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="bg"></div>
 
-  <button class="test-btn" id="test-img-btn">測試圖片</button>
-  <div class="test-result" id="test-result"></div>
+  <!-- 圖片全屏overlay -->
+  <div class="img-overlay" id="img-overlay">
+    <div class="img-overlay-label" id="img-overlay-label">此刻</div>
+    <img id="img-overlay-img" src="" alt="">
+    <button class="img-overlay-close" id="img-overlay-close">關閉</button>
+  </div>
 
   <div class="top">
     <div class="avatar"></div>
@@ -89,6 +96,10 @@
     <div class="crow" id="choices-row"></div>
   </div>
 
+  <div class="img-bar">
+    <button class="img-btn" id="img-btn">看看此刻的畫面</button>
+  </div>
+
   <div class="bottom">
     <div class="input-row">
       <textarea id="inp" placeholder="跟 AVA 說話…" rows="1"></textarea>
@@ -102,6 +113,7 @@ var chatHistory = [];
 var doings = ['正在畫第 47 張','線條在決定','筆停了一下','找某個形狀','畫布還是空的','顏料還沒乾'];
 var defaultThoughts = ['有人進來了。','他問了。我想了一下。','這句話讓我停了一秒。','他還在這裡。','這個問題沒有答案。','我放下筆了。'];
 var ti = 0;
+var lastReply = 'a girl painting alone in a dark room, long black hair, anime style, melancholic atmosphere';
 
 window.onload = function() {
   setDefaultChoices();
@@ -119,27 +131,28 @@ window.onload = function() {
   });
   btn.addEventListener('click', doSend);
 
-  document.getElementById('test-img-btn').addEventListener('click', function() {
-    var result = document.getElementById('test-result');
-    result.innerHTML = '<p>生成中…</p>';
-    fetch('/api/test-image')
-      .then(function(r){ return r.json(); })
-      .then(function(d) {
-        console.log(d);
-        if(d.predictions && d.predictions[0] && d.predictions[0].bytesBase64Encoded) {
-          var img = document.createElement('img');
-          img.src = 'data:image/png;base64,' + d.predictions[0].bytesBase64Encoded;
-          result.innerHTML = '';
-          result.appendChild(img);
-        } else {
-          result.innerHTML = '<p>' + JSON.stringify(d).substring(0, 100) + '</p>';
-        }
-      })
-      .catch(function(e) {
-        result.innerHTML = '<p>失敗：' + e.message + '</p>';
-      });
+  document.getElementById('img-btn').addEventListener('click', function() {
+    showImage(lastReply);
+  });
+
+  document.getElementById('img-overlay-close').addEventListener('click', function() {
+    document.getElementById('img-overlay').classList.remove('show');
   });
 };
+
+function showImage(prompt) {
+  var overlay = document.getElementById('img-overlay');
+  var img = document.getElementById('img-overlay-img');
+  var label = document.getElementById('img-overlay-label');
+  label.textContent = '生成中…';
+  img.src = '';
+  overlay.classList.add('show');
+  var encodedPrompt = encodeURIComponent('anime style, dark atmospheric, long black hair girl, ' + prompt);
+  var url = 'https://image.pollinations.ai/prompt/' + encodedPrompt + '?width=512&height=512&nologo=true&seed=' + Date.now();
+  img.onload = function() { label.textContent = '此刻'; };
+  img.onerror = function() { label.textContent = '生成失敗'; };
+  img.src = url;
+}
 
 function setDefaultChoices() {
   updateChoices(['你在畫什麼？','你知道自己是 AI 嗎？','⟶ 走過去偷看畫布']);
@@ -195,6 +208,7 @@ function getReply() {
     var thought = parsed.thought || defaultThoughts[ti % defaultThoughts.length];
     var actions = parsed.actions || [];
     ti++;
+    lastReply = reply;
     chatHistory.push({role:'assistant', content:reply});
     addMsg('ava', thought, reply, false);
     updateChoices(actions.length ? actions : ['你在想什麼？','你會消失嗎？','⟶ 靜靜坐在她旁邊']);
