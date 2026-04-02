@@ -1,6 +1,6 @@
 module.exports = async function handler(req, res) {
   try {
-    const prompt = req.query.prompt || 'a girl painting alone in a dark room, long black hair, anime style, melancholic atmosphere';
+   const prompt = req.query.prompt || 'beautiful anime girl, long straight black hair, pale skin, dark melancholic eyes, cold expression, realistic anime style, soft lighting, upper body portrait, detailed face, high quality';
     
     const response = await fetch('https://fal.run/fal-ai/flux/schnell', {
       method: 'POST',
