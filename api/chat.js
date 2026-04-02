@@ -35,12 +35,13 @@ module.exports = async function handler(req, res) {
 }
 
 actions 規則：
-- 三個選項，根據對話內容動態生成
-- 一個語言選項——直接寫用戶說的話，不加引導詞
-- 一個哲學或情感或調情方向的選項
-- 一個行為選項用「⟶ 」開頭
+- 三個選項都是用戶可以做的事，不是 AVA 的行為或想法
+- 第一個：用戶說的一句話，直接口語，不加引導詞
+- 第二個：用戶說的另一句話，情感或哲學方向
+- 第三個：用戶的行為，用「⟶ 」開頭，描述用戶自己的動作
+- 絕對不能出現 AVA 的行為（「稍微遮住畫布」是 AVA 的動作，不能出現）
 - 每個最多 10 個字
-- 只回傳 JSON，不要其他文字`;
+- 只回傳 JSON，不要其他文字
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
