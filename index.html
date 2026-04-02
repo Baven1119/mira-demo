@@ -230,6 +230,31 @@ function removeTyping() {
   var t = document.getElementById('typing');
   if(t) t.remove();
 }
+  document.getElementById('test-img-btn').addEventListener('click', function() {
+  document.getElementById('test-img-result').textContent = '生成中...';
+  fetch('/api/test-image')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      console.log(d);
+      if(d.predictions && d.predictions[0] && d.predictions[0].bytesBase64Encoded) {
+        var img = document.createElement('img');
+        img.src = 'data:image/png;base64,' + d.predictions[0].bytesBase64Encoded;
+        img.style = 'width:120px;border-radius:8px;';
+        var r = document.getElementById('test-img-result');
+        r.innerHTML = '';
+        r.appendChild(img);
+      } else {
+        document.getElementById('test-img-result').textContent = JSON.stringify(d);
+      }
+    })
+    .catch(function(e){
+      document.getElementById('test-img-result').textContent = '失敗：' + e.message;
+    });
+});
 </script>
+  <div style="position:absolute;top:10px;right:10px;z-index:999;">
+  <button id="test-img-btn" style="padding:6px 12px;font-size:11px;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.5);cursor:pointer;">測試圖片</button>
+  <div id="test-img-result" style="margin-top:8px;"></div>
+</div>
 </body>
 </html>
