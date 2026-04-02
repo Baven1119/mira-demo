@@ -141,9 +141,27 @@ window.onload = function() {
 };
 
 function showImage(prompt) {
-  var encodedPrompt = encodeURIComponent('anime style, dark atmospheric, long black hair girl, ' + prompt);
-  var url = 'https://image.pollinations.ai/prompt/' + encodedPrompt + '?width=512&height=512&nologo=true&seed=' + Date.now();
-  window.open(url, '_blank');
+  var overlay = document.getElementById('img-overlay');
+  var img = document.getElementById('img-overlay-img');
+  var label = document.getElementById('img-overlay-label');
+  label.textContent = '生成中…';
+  img.src = '';
+  overlay.classList.add('show');
+  
+  fetch('/api/test-image?prompt=' + encodeURIComponent('anime style, dark atmospheric, long black hair girl, ' + prompt))
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if(d.imageUrl) {
+        img.onload = function() { label.textContent = '此刻'; };
+        img.onerror = function() { label.textContent = '生成失敗'; };
+        img.src = d.imageUrl;
+      } else {
+        label.textContent = '生成失敗';
+      }
+    })
+    .catch(function() {
+      label.textContent = '生成失敗';
+    });
 }
 
 function setDefaultChoices() {
