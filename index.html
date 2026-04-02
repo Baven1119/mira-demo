@@ -95,9 +95,7 @@
           <span class="action-line">——沒有轉頭。</span>
           我在畫畫。<br><br>第 47 張。還沒有名字。<br><br>你來了。
         </div>
-        <button class="thought-btn" onclick="toggleThought(this)">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-        </button>
+        <button class="thought-btn" onclick="toggleThought(this)">內心獨白</button>
       </div>
       <div class="thought-panel">
         <div class="thought-label">內心獨白</div>
@@ -282,7 +280,7 @@ function addMsg(role, thought, image, text, isAction) {
     var content = formatBubble(text);
     html += '<div class="bubble-wrap">';
     html += '<div class="bubble">' + content + '</div>';
-    html += '<button class="thought-btn" onclick="toggleThought(this)"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></button>';
+    html += '<button class="thought-btn" onclick="toggleThought(this)">內心獨白</button>';
     html += '</div>';
     if(thought) {
       html += '<div class="thought-panel"><div class="thought-label">內心獨白</div><p>' + thought + '</p></div>';
