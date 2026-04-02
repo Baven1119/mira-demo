@@ -155,7 +155,7 @@ window.onload = function() {
 function toggleThought(btn) {
   var wrap = btn.closest('.bubble-wrap');
   var panel = wrap.parentElement.querySelector('.thought-panel');
-  panel.classList.toggle('open');
+  if (panel) panel.classList.toggle('open');  // 加這個 null 檢查
 }
 
 function showImage(prompt) {
