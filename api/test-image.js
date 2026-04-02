@@ -1,8 +1,8 @@
 module.exports = async function handler(req, res) {
   try {
-   const prompt = req.query.prompt || 'beautiful anime girl, long straight black hair, pale skin, dark melancholic eyes, cold expression, realistic anime style, soft lighting, upper body portrait, detailed face, high quality';
-    
-    const response = await fetch('https://fal.run/fal-ai/flux/schnell', {
+    const prompt = req.query.prompt || 'beautiful anime girl, long straight black hair, pale skin, dark melancholic eyes, realistic anime style, soft lighting, upper body portrait';
+
+    const response = await fetch('https://fal.run/fal-ai/flux-pro', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -10,14 +10,14 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         prompt: prompt,
-        image_size: 'square',
+        image_size: 'portrait_4_3',
         num_images: 1,
-        num_inference_steps: 4
+        safety_tolerance: '2'
       })
     });
 
     const data = await response.json();
-    
+
     if(data.images && data.images[0]) {
       res.status(200).json({ imageUrl: data.images[0].url });
     } else {
