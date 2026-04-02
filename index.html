@@ -89,7 +89,7 @@
 </div>
 
 <script>
-var history = [];
+var chatHistory = [];
 var doings = ['正在畫第 47 張','線條在決定','筆停了一下','找某個形狀','畫布還是空的','顏料還沒乾'];
 var defaultThoughts = ['有人進來了。','他問了。我想了一下。','這句話讓我停了一秒。','他還在這裡。','這個問題沒有答案。','我放下筆了。'];
 var ti = 0;
@@ -119,7 +119,7 @@ function pick(type, text) {
   var isAction = type === 'action';
   var content = isAction ? '[行為：' + text.replace('⟶ ','') + ']' : text;
   addMsg('user', null, text, isAction);
-  history.push({role:'user', content:content});
+  chatHistory.push({role:'user', content:content});
   getReply();
 }
 
@@ -130,7 +130,7 @@ function doSend() {
   inp.value = '';
   inp.style.height = 'auto';
   addMsg('user', null, text, false);
-  history.push({role:'user', content:text});
+  chatHistory.push({role:'user', content:text});
   getReply();
 }
 
@@ -139,7 +139,7 @@ function getReply() {
   fetch('/api/chat', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({messages: history})
+    body: JSON.stringify({messages: chatHistory})
   })
   .then(function(res) {
     removeTyping();
@@ -165,7 +165,7 @@ function getReply() {
     var thought = parsed.thought || defaultThoughts[ti % defaultThoughts.length];
     var actions = parsed.actions || [];
     ti++;
-    history.push({role:'assistant', content:reply});
+    chatHistory.push({role:'assistant', content:reply});
     addMsg('ava', thought, reply, false);
     updateChoices(actions.length ? actions : ['你在想什麼？','你會消失嗎？','⟶ 靜靜坐在她旁邊']);
     document.getElementById('doing').textContent = doings[Math.floor(Math.random()*doings.length)];
