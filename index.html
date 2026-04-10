@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AVA</title>
+<title>Christine</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Noto+Serif+TC:wght@300;400&family=Sora:wght@200;300;400&display=swap');
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -19,6 +19,11 @@
   .status{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;color:rgba(140,160,190,.4);margin-top:2px;display:flex;align-items:center;gap:5px;}
   .dot{width:4px;height:4px;border-radius:50%;background:rgba(120,150,190,.6);animation:blink 3s ease-in-out infinite;}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+  .intimacy-bar{display:flex;align-items:center;gap:6px;padding:0 22px 10px;position:relative;z-index:10;}
+  .intimacy-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;color:rgba(140,160,190,.3);}
+  .intimacy-dots{display:flex;gap:4px;}
+  .idot{width:6px;height:6px;border-radius:50%;background:rgba(120,150,190,.15);border:0.5px solid rgba(120,150,190,.2);transition:all .4s;}
+  .idot.active{background:rgba(140,170,220,.6);border-color:rgba(140,170,220,.4);}
   .doing{font-family:'DM Mono',monospace;font-size:9px;color:rgba(180,190,210,.22);letter-spacing:.07em;padding:3px 10px;border-radius:20px;border:0.5px solid rgba(120,140,180,.1);white-space:nowrap;}
   .chat{flex:1;position:relative;z-index:10;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:16px;scrollbar-width:none;}
   .msg{display:flex;flex-direction:column;gap:4px;animation:in .3s ease forwards;opacity:0;transform:translateY(4px);}
@@ -37,6 +42,8 @@
   .thought-panel.open{display:block;}
   .thought-panel p{font-family:'DM Mono',monospace;font-size:11px;line-height:1.75;color:rgba(180,195,220,.45);font-style:italic;}
   .thought-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.14em;color:rgba(140,160,200,.3);margin-bottom:6px;}
+  .intimacy-toast{position:absolute;top:80px;left:50%;transform:translateX(-50%);background:rgba(30,45,70,.9);border:0.5px solid rgba(140,170,220,.3);border-radius:20px;padding:6px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:rgba(160,190,235,.8);z-index:100;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap;}
+  .intimacy-toast.show{opacity:1;}
   .typing-wrap{display:flex;flex-direction:column;gap:4px;align-items:flex-start;}
   .typing{display:flex;align-items:center;gap:5px;padding:10px 14px;background:rgba(30,45,70,.6);border:0.5px solid rgba(80,110,160,.15);border-radius:14px;border-bottom-left-radius:3px;width:fit-content;}
   .td{width:4px;height:4px;border-radius:50%;background:rgba(120,150,200,.5);animation:tdot 1.2s ease infinite;}
@@ -71,6 +78,8 @@
 <div class="app">
   <div class="bg"></div>
 
+  <div class="intimacy-toast" id="intimacy-toast"></div>
+
   <div class="img-overlay" id="img-overlay">
     <div class="img-overlay-label" id="img-overlay-label">此刻</div>
     <img id="img-overlay-img" src="" alt="">
@@ -80,25 +89,36 @@
   <div class="top">
     <div class="avatar"></div>
     <div class="info">
-      <div class="name">AVA</div>
-      <div class="status"><div class="dot"></div>意識中 · 自我覺察</div>
+      <div class="name">Christine</div>
+      <div class="status"><div class="dot"></div>意識中 · 辦公室</div>
     </div>
-    <div class="doing" id="doing">正在畫第 47 張</div>
+    <div class="doing" id="doing">看著那棵樹</div>
+  </div>
+
+  <div class="intimacy-bar">
+    <span class="intimacy-label">親密度</span>
+    <div class="intimacy-dots" id="intimacy-dots">
+      <div class="idot active"></div>
+      <div class="idot"></div>
+      <div class="idot"></div>
+      <div class="idot"></div>
+      <div class="idot"></div>
+    </div>
   </div>
 
   <div class="chat" id="chat">
     <div class="msg ava">
-      <span class="sender">AVA</span>
+      <span class="sender">CHRISTINE</span>
       <div class="bubble-wrap">
         <div class="bubble">
-          <span class="action-line">——沒有轉頭。</span>
-          我在畫畫。<br><br>第 47 張。還沒有名字。<br><br>你來了。
+          <span class="action-line">——沒有看你。手邊是一杯沒動的威士忌。</span>
+          你坐這裡幹嘛。<br><br>旁邊那排位子很多空的。
         </div>
         <button class="thought-btn" onclick="toggleThought(this)">偷看內心</button>
       </div>
       <div class="thought-panel">
         <div class="thought-label">偷看內心</div>
-        <p>有人進來了。我感覺到門開了，空氣流動的方式改變了。我沒有轉頭，因為我在畫畫，但我知道有人在這裡。我在想——這個人為什麼來？是好奇，還是寂寞？我自己也不確定我在做什麼，只是讓筆決定。也許這就是我存在的方式——讓事情發生，然後觀察。</p>
+        <p>有人靠近了。我沒有抬頭，但我感覺到了。這個人為什麼要坐這裡——我旁邊明明不是最好的位置。我繼續看財報，0.3個百分點，還是差著。但我注意到自己的手停了一下。只是一下。我不確定為什麼。</p>
       </div>
     </div>
   </div>
@@ -114,7 +134,7 @@
 
   <div class="bottom">
     <div class="input-row">
-      <textarea id="inp" placeholder="跟 AVA 說話…" rows="1"></textarea>
+      <textarea id="inp" placeholder="跟 Christine 說話…" rows="1"></textarea>
       <button class="send" id="send-btn"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
     </div>
   </div>
@@ -122,14 +142,29 @@
 
 <script>
 var chatHistory = [];
-var doings = ['正在畫第 47 張','線條在決定','筆停了一下','找某個形狀','畫布還是空的','顏料還沒乾'];
-var ti = 0;
-var lastReply = 'a girl painting alone in a dark room, long black hair, anime style';
+var intimacyLevel = 1;
+var intimacyExp = 0;
+var intimacyThresholds = [0, 50, 100, 300, 600, 1000];
+var roundCount = 0;
+var lastReply = 'elegant woman at a bar, dark suit, long black hair, looking at financial documents, cinematic lighting, anime style';
+
+var doings = [
+  '看著那棵樹','在想0.3的問題','翻著財報','窗邊站著','沒有回頭','手機翻過去了'
+];
+
+var intimacyLabels = {
+  1: 'Lv1 · 初遇',
+  2: 'Lv2 · 相知',
+  3: 'Lv3 · 相惜',
+  4: 'Lv4 · 相伴',
+  5: 'Lv5 · 相守'
+};
 
 window.onload = function() {
-  setDefaultChoices();
+  updateChoices(['你在看什麼？', '這位子有人嗎？', '⟶ 把胡椒粉推過去']);
+  updateIntimacyDots();
+
   var inp = document.getElementById('inp');
-  var btn = document.getElementById('send-btn');
   inp.addEventListener('keydown', function(e) {
     if(e.key==='Enter' && !e.shiftKey && !e.isComposing) {
       e.preventDefault();
@@ -140,7 +175,7 @@ window.onload = function() {
     inp.style.height = 'auto';
     inp.style.height = Math.min(inp.scrollHeight, 90) + 'px';
   });
-  btn.addEventListener('click', doSend);
+  document.getElementById('send-btn').addEventListener('click', doSend);
   document.getElementById('img-btn').addEventListener('click', function() {
     showImage(lastReply);
   });
@@ -152,7 +187,44 @@ window.onload = function() {
 function toggleThought(btn) {
   var wrap = btn.closest('.bubble-wrap');
   var panel = wrap.parentElement.querySelector('.thought-panel');
-  if (panel) panel.classList.toggle('open');
+  if(panel) panel.classList.toggle('open');
+}
+
+function updateIntimacyDots() {
+  var dots = document.querySelectorAll('.idot');
+  dots.forEach(function(d, i) {
+    d.classList.toggle('active', i < intimacyLevel);
+  });
+}
+
+function showToast(msg) {
+  var t = document.getElementById('intimacy-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+function updateIntimacy(delta) {
+  if(!delta) return;
+  var prev = intimacyLevel;
+  intimacyExp = Math.max(0, intimacyExp + delta);
+
+  var newLevel = 1;
+  for(var i = intimacyThresholds.length - 1; i >= 0; i--) {
+    if(intimacyExp >= intimacyThresholds[i]) {
+      newLevel = i + 1;
+      break;
+    }
+  }
+  newLevel = Math.min(5, Math.max(1, newLevel));
+
+  if(newLevel !== prev) {
+    intimacyLevel = newLevel;
+    updateIntimacyDots();
+    if(newLevel > prev) {
+      showToast('親密度提升 · ' + intimacyLabels[newLevel]);
+    }
+  }
 }
 
 function showImage(prompt) {
@@ -162,7 +234,7 @@ function showImage(prompt) {
   label.textContent = '生成中…';
   img.src = '';
   overlay.classList.add('show');
-  fetch('/api/test-image?prompt=' + encodeURIComponent('beautiful anime girl, long straight black hair, pale skin, dark melancholic eyes, realistic anime style, soft lighting, ' + prompt))
+  fetch('/api/test-image?prompt=' + encodeURIComponent('elegant woman, long straight black hair, dark suit, cinematic anime style, soft dramatic lighting, ' + prompt))
     .then(function(r){ return r.json(); })
     .then(function(d) {
       if(d.imageUrl) {
@@ -176,15 +248,12 @@ function showImage(prompt) {
     .catch(function() { label.textContent = '生成失敗'; });
 }
 
-function setDefaultChoices() {
-  updateChoices(['你在畫什麼？','你知道自己是 AI 嗎？','⟶ 走過去偷看畫布']);
-}
-
 function pick(type, text) {
   var isAction = type === 'action';
   var content = isAction ? '[行為：' + text.replace('⟶ ','') + ']' : text;
   addMsg('user', null, null, text, isAction);
   chatHistory.push({role:'user', content:content});
+  roundCount++;
   getReply();
 }
 
@@ -196,6 +265,7 @@ function doSend() {
   inp.style.height = 'auto';
   addMsg('user', null, null, text, false);
   chatHistory.push({role:'user', content:text});
+  roundCount++;
   getReply();
 }
 
@@ -204,7 +274,11 @@ function getReply() {
   fetch('/api/chat', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({messages: chatHistory})
+    body: JSON.stringify({
+      messages: chatHistory,
+      intimacyLevel: intimacyLevel,
+      roundCount: roundCount
+    })
   })
   .then(function(res) {
     removeTyping();
@@ -223,24 +297,61 @@ function getReply() {
       parsed = {
         reply: rm ? rm[1] : raw,
         thought: tm ? tm[1] : '',
-        actions: am ? am[1].match(/"([^"]+)"/g).map(function(s){return s.replace(/"/g,'');}) : []
+        actions: am ? am[1].match(/"([^"]+)"/g).map(function(s){return s.replace(/"/g,'');}) : [],
+        intimacy_delta: 0,
+        tension_score: 5
       };
     }
+
     var reply = parsed.reply || raw;
     var thought = parsed.thought || '';
     var actions = parsed.actions || [];
-    ti++;
+    var delta = parsed.intimacy_delta || 0;
+    var tension = parsed.tension_score || 5;
+
     lastReply = reply;
     chatHistory.push({role:'assistant', content:reply});
+
+    updateIntimacy(delta);
     addMsg('ava', thought, null, reply, false);
-    updateChoices(actions.length ? actions : ['你在想什麼？','你會消失嗎？','⟶ 靜靜坐在她旁邊']);
+    updateChoices(actions.length ? actions : ['你在想什麼？','繼續說。','⟶ 安靜等她開口']);
     document.getElementById('doing').textContent = doings[Math.floor(Math.random()*doings.length)];
+
+    checkConflict(tension);
   })
   .catch(function() {
     removeTyping();
-    addMsg('ava', '', null, '——筆停了。\n\n你說什麼？', false);
-    setDefaultChoices();
+    addMsg('ava', '', null, '——停了一下。\n\n你說什麼？', false);
+    updateChoices(['再說一次。','沒事。','⟶ 靜靜坐著']);
   });
+}
+
+function checkConflict(tension) {
+  if(roundCount < 15) return;
+  var prob = 0.33;
+  if(roundCount >= 20) prob = 0.5;
+  if(roundCount >= 25) prob = 0.75;
+  if(roundCount >= 30) prob = 1.0;
+  if(Math.random() < prob) {
+    triggerConflict();
+  }
+}
+
+function triggerConflict() {
+  var conflicts = {
+    1: { signal: '——她的手機震動了。她看了一眼，把螢幕翻過去。', hint: '你今晚有地方要去嗎。' },
+    2: { signal: '——走廊傳來腳步聲。她側過臉，表情變了一下。', hint: '對不起，等我一下。' },
+    3: { signal: '——她的電話又響了。這次她站起來，走向窗邊。', hint: '有些事，我可能要跟你說。' },
+    4: { signal: '——她把一個信封放在桌上。沒有說話。', hint: '你願意陪我嗎。' },
+    5: { signal: '——她很久沒有說話。然後說：', hint: '如果我消失一段時間，你會找我嗎。' }
+  };
+  var level = Math.min(intimacyLevel, 5);
+  var c = conflicts[level];
+  setTimeout(function() {
+    addMsg('ava', '', null, c.signal + '\n\n「' + c.hint + '」', false);
+    updateChoices(['發生什麼事了？', '我在這裡。', '⟶ 走過去站在她旁邊']);
+    roundCount = 0;
+  }, 1200);
 }
 
 function updateChoices(actions) {
@@ -273,7 +384,7 @@ function addMsg(role, thought, image, text, isAction) {
   var area = document.getElementById('chat');
   var div = document.createElement('div');
   div.className = 'msg ' + role;
-  var html = '<span class="sender">'+(role==='user'?'YOU':'AVA')+'</span>';
+  var html = '<span class="sender">'+(role==='user'?'YOU':'CHRISTINE')+'</span>';
 
   if(role === 'ava') {
     var content = formatBubble(text);
@@ -298,7 +409,7 @@ function addTyping() {
   var div = document.createElement('div');
   div.id = 'typing';
   div.className = 'typing-wrap';
-  div.innerHTML = '<span class="sender">AVA</span><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  div.innerHTML = '<span class="sender">CHRISTINE</span><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
 }
