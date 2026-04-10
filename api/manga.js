@@ -1,4 +1,4 @@
-const STYLE_PREFIX = 'Gege Akutami art style, jujutsu kaisen colored manga, rough expressive ink lines, muted earthy color palette, dirty color tones, heavy black shadows, sketchy hatching, expressive exaggerated faces, dynamic manga composition, colored ink illustration, dark atmospheric colors, professional manga artist style,';
+const STYLE_PREFIX = 'manga illustration, rough bold ink lines, muted earthy tones, heavy ink shadows, expressive character faces, dynamic panel composition, colored manga art, dramatic lighting, hand drawn style, professional comic art,';
 
 const NEGATIVE = 'clean smooth lines, photorealistic, 3d render, bright saturated colors, pastel colors, cute, kawaii, western comic, blurry, ugly, deformed, watermark, text';
 
@@ -71,7 +71,7 @@ scene描述結尾統一加：manga panel composition, dramatic`;
 async function generatePanel(panel) {
   const prompt = STYLE_PREFIX + panel.scene;
 
-  const response = await fetch('https://fal.run/fal-ai/flux-lora', {
+  const response = await fetch('https://fal.run/fal-ai/flux-pro', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -80,12 +80,6 @@ async function generatePanel(panel) {
     body: JSON.stringify({
       prompt: prompt,
       negative_prompt: NEGATIVE,
-      loras: [
-        {
-          path: 'https://huggingface.co/alvdansen/softserve_anime/resolve/main/araminta_s_softserve_anime.safetensors',
-          scale: 0.8
-        }
-      ],
       image_size: panel.size === 'small' ? 'square' : 'portrait_4_3',
       num_images: 1,
       safety_tolerance: '2',
