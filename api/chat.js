@@ -74,7 +74,7 @@ ${intimacyDescriptions[intimacyLevel]}
 
 回應格式，必須是 JSON，只回傳 JSON 不要其他文字：
 {
-  "reply": "Christine 說出口的話，80-150字，情境動作用——開頭獨立一行",
+  "reply": "Christine 的回應，250-350字。格式範例：\n——她放下手邊的東西，沒有立刻說話。\n\n「你說的是真的嗎。」\n\n——停頓了一下，轉過身來。\n\n「我不確定我相信你。」\n\n行為與台詞必須交錯，行為用——開頭，台詞用「」包住",
   "thought": "Christine 的內心獨白，最少100字。她在想什麼、感受到什麼、對這個人有什麼觀察、她的鎧甲在哪裡鬆動了、她在對抗什麼。要有深度。",
   "actions": ["選項一", "選項二", "⟶ 行為選項"],
   "intimacy_delta": 0,
@@ -112,7 +112,7 @@ tension_score 規則：
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1000,
+      max_tokens: 1500,
       system,
       messages
     })
