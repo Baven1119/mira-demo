@@ -59,22 +59,22 @@
   .manga-bar{position:relative;z-index:10;padding:6px 16px;border-top:0.5px solid rgba(255,255,255,.04);}
   .manga-btn-main{width:100%;padding:7px;border-radius:10px;border:0.5px solid rgba(140,160,200,.15);background:rgba(30,45,70,.3);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:rgba(140,165,210,.45);cursor:pointer;transition:all .15s;}
   .manga-btn-main:hover{border-color:rgba(140,160,200,.3);color:rgba(160,190,235,.7);background:rgba(30,45,70,.5);}
-  .manga-overlay{display:none;position:absolute;inset:0;z-index:200;background:rgba(6,6,12,.96);flex-direction:column;overflow:hidden;}
+  .manga-overlay{display:none;position:absolute;inset:0;z-index:200;background:#f0ece6;flex-direction:column;overflow:hidden;}
   .manga-overlay.show{display:flex;}
-  .manga-header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid rgba(255,255,255,.08);flex-shrink:0;}
-  .manga-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.3);}
-  .manga-close-btn{background:none;border:0.5px solid rgba(255,255,255,.12);border-radius:20px;padding:4px 12px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;}
-  .manga-scroll{flex:1;overflow-y:auto;scrollbar-width:none;}
-  .manga-panels{display:flex;flex-direction:column;gap:2px;padding:2px;}
-  .manga-panel-wrap{position:relative;width:100%;}
-  .manga-panel-wrap img{width:100%;display:block;}
-  .manga-dialogue{position:absolute;bottom:12px;left:12px;right:12px;background:white;border-radius:10px;padding:8px 12px;font-family:'Noto Serif TC',serif;font-size:12px;color:#111;line-height:1.6;border:1.5px solid #222;}
-  .manga-sfx{position:absolute;top:12px;right:12px;font-size:20px;font-weight:900;color:white;font-style:italic;text-shadow:2px 2px 0 #000;font-family:serif;transform:rotate(-6deg);}
-  .manga-loading{padding:60px 40px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.2);line-height:2;}
-  .manga-footer{padding:10px 16px 14px;display:flex;gap:8px;flex-shrink:0;border-top:0.5px solid rgba(255,255,255,.06);}
+  .manga-header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid rgba(0,0,0,.08);flex-shrink:0;background:white;}
+  .manga-title{font-family:'Noto Serif TC',serif;font-size:13px;color:rgba(0,0,0,.6);letter-spacing:.05em;}
+  .manga-close-btn{background:none;border:0.5px solid rgba(0,0,0,.15);border-radius:20px;padding:4px 12px;color:rgba(0,0,0,.4);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;}
+  .manga-scroll{flex:1;overflow-y:auto;scrollbar-width:none;background:#f0ece6;}
+  .manga-panels{display:flex;flex-direction:column;gap:0;padding:12px 16px;background:#f0ece6;}
+  .manga-panel-wrap{position:relative;width:100%;background:white;padding:10px;margin-bottom:10px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .manga-panel-wrap img{width:100%;display:block;border-radius:4px;}
+  .manga-dialogue{position:absolute;bottom:18px;left:18px;right:18px;background:white;border-radius:10px;padding:8px 12px;font-family:'Noto Serif TC',serif;font-size:12px;color:#111;line-height:1.6;border:1.5px solid #222;box-shadow:2px 2px 0 rgba(0,0,0,.1);}
+  .manga-sfx{position:absolute;top:18px;right:18px;font-size:20px;font-weight:900;color:#111;font-style:italic;font-family:'Noto Serif TC',serif;transform:rotate(-6deg);}
+  .manga-loading{padding:60px 40px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:rgba(0,0,0,.3);line-height:2.5;background:#f0ece6;}
+  .manga-footer{padding:10px 16px 14px;display:flex;gap:8px;flex-shrink:0;border-top:0.5px solid rgba(0,0,0,.06);background:white;}
   .manga-footer-btn{flex:1;padding:8px;border-radius:10px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:.08em;}
-  .manga-footer-btn.save{border:0.5px solid rgba(140,160,200,.2);background:none;color:rgba(140,165,210,.5);}
-  .manga-footer-btn.share{border:none;background:rgba(140,160,200,.15);color:rgba(160,190,235,.8);}
+  .manga-footer-btn.save{border:0.5px solid rgba(0,0,0,.15);background:none;color:rgba(0,0,0,.4);}
+  .manga-footer-btn.share{border:none;background:#111;color:white;}
   .bottom{position:relative;z-index:10;border-top:0.5px solid rgba(255,255,255,.04);background:rgba(6,6,12,.75);}
   .input-row{padding:10px 14px 14px;display:flex;gap:8px;align-items:flex-end;}
   #inp{flex:1;background:rgba(255,255,255,.04);border:0.5px solid rgba(255,255,255,.06);border-radius:10px;padding:9px 12px;font-family:'Sora',sans-serif;font-size:13px;font-weight:300;color:#c8c4ba;resize:none;outline:none;line-height:1.5;min-height:38px;max-height:90px;transition:border-color .15s;}
@@ -93,7 +93,7 @@
 
   <div class="manga-overlay" id="manga-overlay">
     <div class="manga-header">
-      <span class="manga-title" id="manga-title">路燈下的鯊魚</span>
+      <span class="manga-title" id="manga-title">情節漫畫</span>
       <button class="manga-close-btn" id="manga-close">關閉</button>
     </div>
     <div class="manga-scroll">
@@ -172,10 +172,9 @@ var intimacyLabels = {1:'Lv1 · 初遇',2:'Lv2 · 相知',3:'Lv3 · 相惜',4:'L
 window.onload = function() {
   updateChoices(['你在看什麼？','這位子有人嗎？','⟶ 把胡椒粉推過去']);
   updateIntimacyDots();
-
   var inp = document.getElementById('inp');
   inp.addEventListener('keydown', function(e) {
-    if(e.key==='Enter' && !e.shiftKey && !e.isComposing){e.preventDefault();doSend();}
+    if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();doSend();}
   });
   inp.addEventListener('input', function() {
     inp.style.height='auto';
@@ -261,11 +260,9 @@ function getReply() {
       var tm = raw.match(/"thought"\s*:\s*"([\s\S]+?)"/);
       var am = raw.match(/"actions"\s*:\s*\[([^\]]+)\]/);
       parsed = {
-        reply: rm ? rm[1] : raw,
-        thought: tm ? tm[1] : '',
-        actions: am ? am[1].match(/"([^"]+)"/g).map(function(s){return s.replace(/"/g,'');}) : [],
-        intimacy_delta: 0,
-        tension_score: 5
+        reply: rm?rm[1]:raw,
+        thought: tm?tm[1]:'',
+        actions: am?am[1].match(/"([^"]+)"/g).map(function(s){return s.replace(/"/g,'');}):[]
       };
     }
     var reply = parsed.reply || raw;
@@ -273,7 +270,6 @@ function getReply() {
     var actions = parsed.actions || [];
     var delta = parsed.intimacy_delta || 0;
     var tension = parsed.tension_score || 5;
-
     chatHistory.push({role:'assistant', content:reply});
     updateIntimacy(delta);
     addMsg('ava', thought, null, reply, false);
@@ -317,7 +313,7 @@ function triggerConflict() {
 function generateManga() {
   var overlay = document.getElementById('manga-overlay');
   var panelsDiv = document.getElementById('manga-panels');
-  panelsDiv.innerHTML = '<div class="manga-loading">正在為你繪製這一刻…<br><br>約需 30-60 秒</div>';
+  panelsDiv.innerHTML = '<div class="manga-loading">正在為你繪製這一刻…<br><br>約需 30–60 秒<br><br>請稍候</div>';
   overlay.classList.add('show');
 
   fetch('/api/manga', {
@@ -328,7 +324,9 @@ function generateManga() {
   .then(function(r){ return r.json(); })
   .then(function(data) {
     if(!data.success) throw new Error(data.error);
+    if(data.title) document.getElementById('manga-title').textContent = data.title;
     panelsDiv.innerHTML = '';
+
     data.panels.forEach(function(panel) {
       var wrapper = document.createElement('div');
       wrapper.className = 'manga-panel-wrap';
@@ -356,7 +354,7 @@ function generateManga() {
     });
   })
   .catch(function(e) {
-    panelsDiv.innerHTML = '<div class="manga-loading" style="color:rgba(255,100,100,.5);">生成失敗<br><br>' + e.message + '</div>';
+    panelsDiv.innerHTML = '<div class="manga-loading" style="color:rgba(180,60,60,.6);">生成失敗<br><br>' + e.message + '</div>';
   });
 }
 
@@ -369,7 +367,7 @@ function updateChoices(actions) {
   actions.forEach(function(a) {
     var isAction = a.startsWith('⟶');
     var btn = document.createElement('button');
-    btn.className = 'choice' + (isAction?' action':'');
+    btn.className = 'choice'+(isAction?' action':'');
     btn.textContent = a;
     btn.onclick = function(){ pick(isAction?'action':'say', a); };
     row.appendChild(btn);
