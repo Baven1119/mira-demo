@@ -1,6 +1,6 @@
 const STYLE_PREFIX = 'anime style illustration, japanese manga art, soft cel shading, warm color grading, detailed anime face, emotional character design, cinematic anime scene, makoto shinkai color palette, romantic atmosphere, digital painting, high quality anime art, beautiful elegant woman, long straight black hair, sharp intelligent eyes, slender figure, fitted dark blazer, subtle confident sensuality, graceful posture, sophisticated beauty,';
 
-const NEGATIVE = 'american comic, western cartoon, photorealistic, 3d render, rough ink lines, heavy outlines, dark gritty, horror, ugly, deformed, blurry, watermark, text, bad anatomy, explicit, nsfw';
+const NEGATIVE = 'american comic, western cartoon, photorealistic, 3d render, rough ink lines, heavy outlines, dark gritty, horror, ugly, deformed, blurry, watermark, text, bad anatomy, explicit, nsfw, speech bubble, dialogue text, written text, letters, words, japanese text, chinese text, korean text';
 
 async function generateScript(dialogue) {
   const storyPrompt = `根據以下對話，先寫一段完整的漫畫故事，再切分成6格分鏡。
@@ -32,8 +32,8 @@ ${dialogue.map(function(m){ return (m.role === 'user' ? 'USER: ' : 'CHRISTINE: '
       "size": "large",
       "shot_type": "遠景/中景/近景/特寫/極特寫",
       "scene": "英文場景描述，20-30個單字，包含：鏡頭類型、人物動作與姿態、光線、情緒氛圍",
-      "dialogue": "台詞或null",
-      "sfx": "音效字或null",
+      "dialogue": "台詞繁體中文或null",
+      "sfx": "音效字繁體中文或null",
       "story_role": "這格在故事中的作用"
     }
   ]
@@ -49,9 +49,11 @@ size規則：
 
 scene描述規則：
 - 女主角永遠是長直黑髮、合身深色西裝的優雅女性
+- 女主視線要看向對話對象，不看鏡頭
+- 男生的背影在前景，建立兩人對話的空間感
 - 姿態要有吸引力：交叉雙腿、側身回眸、微微低頭、髮絲飄動
 - 光線要打在女主身上：逆光輪廓、側光打臉、暖光從後方
-- scene描述結尾統一加：anime scene, cinematic, emotional`;
+- scene描述結尾統一加：three quarter profile shot, man back in foreground, anime scene, cinematic, emotional, no text, no speech bubble`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
