@@ -1,6 +1,6 @@
-const STYLE_PREFIX = 'manga illustration, rough bold ink lines, muted earthy tones, heavy ink shadows, expressive character faces, dynamic panel composition, colored manga art, dramatic lighting, hand drawn style, professional comic art,';
+const STYLE_PREFIX = 'anime style illustration, japanese manga art, soft cel shading, warm color grading, detailed anime face, emotional character design, cinematic anime scene, makoto shinkai color palette, romantic atmosphere, digital painting, high quality anime art, beautiful elegant woman, long straight black hair, sharp intelligent eyes, slender figure, fitted dark blazer, subtle confident sensuality, graceful posture, sophisticated beauty,';
 
-const NEGATIVE = 'clean smooth lines, photorealistic, 3d render, bright saturated colors, pastel colors, cute, kawaii, western comic, blurry, ugly, deformed, watermark, text';
+const NEGATIVE = 'american comic, western cartoon, photorealistic, 3d render, rough ink lines, heavy outlines, dark gritty, horror, ugly, deformed, blurry, watermark, text, bad anatomy, explicit, nsfw';
 
 async function generateScript(dialogue) {
   const storyPrompt = `根據以下對話，先寫一段完整的漫畫故事，再切分成6格分鏡。
@@ -15,9 +15,9 @@ ${dialogue.map(function(m){ return (m.role === 'user' ? 'USER: ' : 'CHRISTINE: '
 - 餘韻結尾（留白或暗示）
 
 第二步：把故事切成6格分鏡，分鏡原則：
-- 格1：建立場景，遠景或中景，交代環境
+- 格1：建立場景，遠景或中景，交代環境與女主姿態
 - 格2：人物反應，中景或近景，帶出情緒
-- 格3：情感張力，近景或特寫，關鍵動作
+- 格3：情感張力，近景或特寫，關鍵動作或眼神
 - 格4：戲劇性特寫，極近景，眼神或手部細節
 - 格5：情緒高潮，大格，最有衝擊力的一刻
 - 格6：餘韻，中景或遠景，留白收尾
@@ -31,7 +31,7 @@ ${dialogue.map(function(m){ return (m.role === 'user' ? 'USER: ' : 'CHRISTINE: '
       "id": 1,
       "size": "large",
       "shot_type": "遠景/中景/近景/特寫/極特寫",
-      "scene": "英文場景描述，20-25個單字，包含：鏡頭類型、人物動作、光線、情緒氛圍",
+      "scene": "英文場景描述，20-30個單字，包含：鏡頭類型、人物動作與姿態、光線、情緒氛圍",
       "dialogue": "台詞或null",
       "sfx": "音效字或null",
       "story_role": "這格在故事中的作用"
@@ -47,7 +47,11 @@ size規則：
 - 格5 large（高潮）
 - 格6 medium（收尾）
 
-scene描述結尾統一加：manga panel composition, dramatic`;
+scene描述規則：
+- 女主角永遠是長直黑髮、合身深色西裝的優雅女性
+- 姿態要有吸引力：交叉雙腿、側身回眸、微微低頭、髮絲飄動
+- 光線要打在女主身上：逆光輪廓、側光打臉、暖光從後方
+- scene描述結尾統一加：anime scene, cinematic, emotional`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
