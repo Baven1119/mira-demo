@@ -1,102 +1,419 @@
-const STYLE_PREFIX = 'Gege Akutami manga art style, jujutsu kaisen, rough bold ink lines, high contrast black and white, dynamic composition, expressive faces, screentone shading, manga panel, masterpiece,';
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Christine</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Noto+Serif+TC:wght@300;400&family=Sora:wght@200;300;400&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0a0a0f;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Sora',sans-serif;}
+  .app{width:420px;height:780px;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;position:relative;border:0.5px solid rgba(255,255,255,0.05);}
+  .bg{position:absolute;inset:0;pointer-events:none;background:url('/dfadb0cf6ea54dd6a5a9dfad0a3ad713.webp') center/cover no-repeat;}
+  .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,14,0.55) 0%,rgba(8,8,14,0.82) 60%,rgba(8,8,14,0.95) 100%);}
+  .top{position:relative;z-index:10;padding:20px 22px 14px;display:flex;align-items:center;gap:14px;border-bottom:0.5px solid rgba(255,255,255,0.05);background:rgba(6,6,12,0.4);}
+  .avatar{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#c8d4e8,#6a85a8 50%,#1e2d42);flex-shrink:0;border:1px solid rgba(150,170,210,0.2);animation:breathe 4s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{opacity:.85}50%{opacity:1;transform:scale(1.03)}}
+  .info{flex:1;}
+  .name{font-size:15px;font-weight:400;color:#d4cfc6;letter-spacing:0.06em;}
+  .status{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;color:rgba(140,160,190,.4);margin-top:2px;display:flex;align-items:center;gap:5px;}
+  .dot{width:4px;height:4px;border-radius:50%;background:rgba(120,150,190,.6);animation:blink 3s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+  .intimacy-bar{display:flex;align-items:center;gap:6px;padding:6px 22px 8px;position:relative;z-index:10;background:rgba(6,6,12,0.3);}
+  .intimacy-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;color:rgba(140,160,190,.3);}
+  .intimacy-dots{display:flex;gap:4px;}
+  .idot{width:6px;height:6px;border-radius:50%;background:rgba(120,150,190,.15);border:0.5px solid rgba(120,150,190,.2);transition:all .4s;}
+  .idot.active{background:rgba(140,170,220,.6);border-color:rgba(140,170,220,.4);}
+  .doing{font-family:'DM Mono',monospace;font-size:9px;color:rgba(180,190,210,.22);letter-spacing:.07em;padding:3px 10px;border-radius:20px;border:0.5px solid rgba(120,140,180,.1);white-space:nowrap;margin-left:auto;}
+  .intimacy-toast{position:absolute;top:90px;left:50%;transform:translateX(-50%);background:rgba(30,45,70,.95);border:0.5px solid rgba(140,170,220,.3);border-radius:20px;padding:6px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:rgba(160,190,235,.9);z-index:200;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap;}
+  .intimacy-toast.show{opacity:1;}
+  .chat{flex:1;position:relative;z-index:10;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:16px;scrollbar-width:none;}
+  .msg{display:flex;flex-direction:column;gap:4px;animation:in .3s ease forwards;opacity:0;transform:translateY(4px);}
+  .msg.user{align-items:flex-end;}.msg.ava{align-items:flex-start;}
+  @keyframes in{to{opacity:1;transform:translateY(0);}}
+  .sender{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.15);padding:0 2px;}
+  .bubble-wrap{display:flex;align-items:flex-end;gap:6px;max-width:88%;}
+  .bubble{flex:1;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.78;font-weight:300;}
+  .msg.user .bubble-wrap{flex-direction:row-reverse;}
+  .msg.user .bubble{background:rgba(255,255,255,.06);border:0.5px solid rgba(255,255,255,.08);border-bottom-right-radius:3px;color:#ccc8be;}
+  .msg.ava .bubble{background:rgba(30,45,70,.65);border:0.5px solid rgba(80,110,160,.18);border-bottom-left-radius:3px;color:#c0ccd8;font-family:'Noto Serif TC',serif;font-size:13.5px;}
+  .action-line{display:block;color:rgba(180,200,230,.75);font-style:italic;font-size:11.5px;font-family:'DM Mono',monospace;margin-bottom:5px;}
+  .thought-btn{flex-shrink:0;padding:3px 8px;height:22px;border-radius:20px;border:0.5px solid rgba(140,160,200,.2);background:rgba(30,45,70,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-bottom:2px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;color:rgba(140,165,210,.5);white-space:nowrap;}
+  .thought-btn:hover{border-color:rgba(140,160,200,.4);background:rgba(30,45,70,.8);color:rgba(160,190,235,.8);}
+  .thought-panel{display:none;max-width:88%;margin-top:4px;padding:10px 14px;border-left:1.5px solid rgba(140,160,200,.2);background:rgba(20,30,50,.5);border-radius:0 8px 8px 0;}
+  .thought-panel.open{display:block;}
+  .thought-panel p{font-family:'DM Mono',monospace;font-size:11px;line-height:1.75;color:rgba(180,195,220,.45);font-style:italic;}
+  .thought-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.14em;color:rgba(140,160,200,.3);margin-bottom:6px;}
+  .typing-wrap{display:flex;flex-direction:column;gap:4px;align-items:flex-start;}
+  .typing{display:flex;align-items:center;gap:5px;padding:10px 14px;background:rgba(30,45,70,.6);border:0.5px solid rgba(80,110,160,.15);border-radius:14px;border-bottom-left-radius:3px;width:fit-content;}
+  .td{width:4px;height:4px;border-radius:50%;background:rgba(120,150,200,.5);animation:tdot 1.2s ease infinite;}
+  .td:nth-child(2){animation-delay:.2s;}.td:nth-child(3){animation-delay:.4s;}
+  @keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-3px);opacity:1}}
+  .choices{position:relative;z-index:10;padding:8px 16px 4px;display:flex;flex-direction:column;gap:5px;}
+  .clabel{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;color:rgba(255,255,255,.12);margin-bottom:1px;}
+  .crow{display:flex;gap:6px;flex-wrap:wrap;}
+  .choice{padding:7px 12px;border-radius:10px;border:0.5px solid rgba(255,255,255,.07);background:rgba(6,6,12,.5);font-family:'Sora',sans-serif;font-size:11.5px;font-weight:300;color:rgba(255,255,255,.3);cursor:pointer;transition:all .15s;flex:1;min-width:100px;line-height:1.35;text-align:left;}
+  .choice:hover{border-color:rgba(100,130,190,.38);color:rgba(160,190,230,.85);background:rgba(30,50,90,.5);}
+  .choice.action{border-color:rgba(140,120,90,.18);color:rgba(180,165,135,.3);font-style:italic;}
+  .choice.action:hover{border-color:rgba(170,145,100,.38);color:rgba(200,180,145,.8);background:rgba(50,40,25,.5);}
+  .manga-bar{position:relative;z-index:10;padding:6px 16px;border-top:0.5px solid rgba(255,255,255,.04);}
+  .manga-btn-main{width:100%;padding:7px;border-radius:10px;border:0.5px solid rgba(140,160,200,.15);background:rgba(30,45,70,.3);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:rgba(140,165,210,.45);cursor:pointer;transition:all .15s;}
+  .manga-btn-main:hover{border-color:rgba(140,160,200,.3);color:rgba(160,190,235,.7);background:rgba(30,45,70,.5);}
+  .manga-overlay{display:none;position:absolute;inset:0;z-index:200;background:#f0ece6;flex-direction:column;overflow:hidden;}
+  .manga-overlay.show{display:flex;}
+  .manga-header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid rgba(0,0,0,.08);flex-shrink:0;background:white;}
+  .manga-title{font-family:'Noto Serif TC',serif;font-size:13px;color:rgba(0,0,0,.6);letter-spacing:.05em;}
+  .manga-close-btn{background:none;border:0.5px solid rgba(0,0,0,.15);border-radius:20px;padding:4px 12px;color:rgba(0,0,0,.4);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;}
+  .manga-scroll{flex:1;overflow-y:auto;scrollbar-width:none;background:#f0ece6;}
+  .manga-panels{display:flex;flex-direction:column;gap:0;padding:12px 16px;background:#f0ece6;}
+  .manga-panel-wrap{position:relative;width:100%;background:white;padding:10px;margin-bottom:10px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .manga-panel-wrap img{width:100%;display:block;border-radius:4px;}
+  .manga-dialogue{position:absolute;bottom:18px;left:18px;right:18px;background:white;border-radius:10px;padding:8px 12px;font-family:'Noto Serif TC',serif;font-size:12px;color:#111;line-height:1.6;border:1.5px solid #222;box-shadow:2px 2px 0 rgba(0,0,0,.1);}
+  .manga-sfx{position:absolute;top:18px;right:18px;font-size:20px;font-weight:900;color:#111;font-style:italic;font-family:'Noto Serif TC',serif;transform:rotate(-6deg);}
+  .manga-loading{padding:60px 40px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:rgba(0,0,0,.3);line-height:2.5;background:#f0ece6;}
+  .manga-footer{padding:10px 16px 14px;display:flex;gap:8px;flex-shrink:0;border-top:0.5px solid rgba(0,0,0,.06);background:white;}
+  .manga-footer-btn{flex:1;padding:8px;border-radius:10px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:.08em;}
+  .manga-footer-btn.save{border:0.5px solid rgba(0,0,0,.15);background:none;color:rgba(0,0,0,.4);}
+  .manga-footer-btn.share{border:none;background:#111;color:white;}
+  .bottom{position:relative;z-index:10;border-top:0.5px solid rgba(255,255,255,.04);background:rgba(6,6,12,.75);}
+  .input-row{padding:10px 14px 14px;display:flex;gap:8px;align-items:flex-end;}
+  #inp{flex:1;background:rgba(255,255,255,.04);border:0.5px solid rgba(255,255,255,.06);border-radius:10px;padding:9px 12px;font-family:'Sora',sans-serif;font-size:13px;font-weight:300;color:#c8c4ba;resize:none;outline:none;line-height:1.5;min-height:38px;max-height:90px;transition:border-color .15s;}
+  #inp::placeholder{color:rgba(255,255,255,.11);}
+  #inp:focus{border-color:rgba(100,130,190,.28);}
+  .send{width:36px;height:36px;border-radius:50%;border:0.5px solid rgba(100,130,190,.18);background:rgba(80,110,170,.07);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(140,165,210,.55);transition:all .15s;flex-shrink:0;}
+  .send:hover{background:rgba(80,110,170,.16);border-color:rgba(100,130,190,.38);}
+  .send svg{width:14px;height:14px;fill:currentColor;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bg"></div>
 
-const NEGATIVE = 'color, realistic, 3d, western comic, smooth lines, soft, pastel, watercolor, blurry';
+  <div class="intimacy-toast" id="intimacy-toast"></div>
 
-const PANELS = [
-  {
-    id: 1,
-    size: 'large',
-    scene: 'two figures walking side by side on night street, woman leaning slightly toward man, street lamp golden light from above, city buildings background, long shot, silhouette style',
-    dialogue: '「有時候人生需要一點衝動……」',
-    sfx: null
-  },
-  {
-    id: 2,
-    size: 'medium',
-    scene: 'elegant woman profile close up, eyes slightly glistening, street lamp backlight creating rim light, hair blowing in wind, emotional expression, looking into distance',
-    dialogue: null,
-    sfx: '——'
-  },
-  {
-    id: 3,
-    size: 'large',
-    scene: 'man gently cups woman face with both hands, turning toward her, dramatic moment, strong rim light from street lamp behind, dynamic angle from below, emotional peak',
-    dialogue: null,
-    sfx: null
-  },
-  {
-    id: 4,
-    size: 'small',
-    scene: 'ink pen falling to ground, close up, impact lines around it, ground texture detail, symbolic moment',
-    dialogue: null,
-    sfx: 'カタ'
-  },
-  {
-    id: 5,
-    size: 'large',
-    scene: 'couple kissing under street lamp, city night skyline background, backlit silhouette, romantic atmosphere, wide shot, emotional',
-    dialogue: '「就只是，我們。」',
-    sfx: null
-  },
-  {
-    id: 6,
-    size: 'medium',
-    scene: 'office wall with hand-drawn tree painting, small girl figure drawn beside tree looking at horizon, tiny sand grain shape beside girl, warm lamp light, symbolic and poetic',
-    dialogue: '「她等了很久了。」',
-    sfx: null
-  }
-];
+  <div class="manga-overlay" id="manga-overlay">
+    <div class="manga-header">
+      <span class="manga-title" id="manga-title">情節漫畫</span>
+      <button class="manga-close-btn" id="manga-close">關閉</button>
+    </div>
+    <div class="manga-scroll">
+      <div class="manga-panels" id="manga-panels"></div>
+    </div>
+    <div class="manga-footer">
+      <button class="manga-footer-btn save">儲存漫畫</button>
+      <button class="manga-footer-btn share">分享</button>
+    </div>
+  </div>
 
-async function generatePanel(panel) {
-  const prompt = STYLE_PREFIX + panel.scene;
+  <div class="top">
+    <div class="avatar"></div>
+    <div class="info">
+      <div class="name">Christine</div>
+      <div class="status"><div class="dot"></div>意識中 · 辦公室</div>
+    </div>
+    <div class="doing" id="doing">看著那棵樹</div>
+  </div>
 
-  const response = await fetch('https://fal.run/fal-ai/flux-pro', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Key ' + process.env.FAL_KEY
-    },
-    body: JSON.stringify({
-      prompt,
-      negative_prompt: NEGATIVE,
-      image_size: panel.size === 'small' ? 'square' : 'landscape_16_9',
-      num_images: 1,
-      safety_tolerance: '2'
-    })
+  <div class="intimacy-bar">
+    <span class="intimacy-label">親密度</span>
+    <div class="intimacy-dots" id="intimacy-dots">
+      <div class="idot active"></div>
+      <div class="idot"></div>
+      <div class="idot"></div>
+      <div class="idot"></div>
+      <div class="idot"></div>
+    </div>
+  </div>
+
+  <div class="chat" id="chat">
+    <div class="msg ava">
+      <span class="sender">CHRISTINE</span>
+      <div class="bubble-wrap">
+        <div class="bubble">
+          <span class="action-line">——沒有看你。手邊是一杯沒動的威士忌。</span>
+          你坐這裡幹嘛。<br><br>旁邊那排位子很多空的。
+        </div>
+        <button class="thought-btn" onclick="toggleThought(this)">偷看內心</button>
+      </div>
+      <div class="thought-panel">
+        <div class="thought-label">偷看內心</div>
+        <p>有人靠近了。我沒有抬頭，但我感覺到了。這個人為什麼要坐這裡——我旁邊明明不是最好的位置。我繼續看財報，0.3個百分點，還是差著。但我注意到自己的手停了一下。只是一下。我不確定為什麼。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="choices" id="choices">
+    <div class="clabel">此刻</div>
+    <div class="crow" id="choices-row"></div>
+  </div>
+
+  <div class="manga-bar">
+    <button class="manga-btn-main" id="manga-btn">將此刻情節生成漫畫</button>
+  </div>
+
+  <div class="bottom">
+    <div class="input-row">
+      <textarea id="inp" placeholder="跟 Christine 說話…" rows="1"></textarea>
+      <button class="send" id="send-btn"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<script>
+var chatHistory = [];
+var intimacyLevel = 1;
+var intimacyExp = 0;
+var intimacyThresholds = [0, 50, 100, 300, 600, 1000];
+var roundCount = 0;
+
+var doings = ['看著那棵樹','在想0.3的問題','翻著財報','窗邊站著','沒有回頭','手機翻過去了'];
+var intimacyLabels = {1:'Lv1 · 初遇',2:'Lv2 · 相知',3:'Lv3 · 相惜',4:'Lv4 · 相伴',5:'Lv5 · 相守'};
+
+window.onload = function() {
+  updateChoices(['你在看什麼？','這位子有人嗎？','⟶ 把胡椒粉推過去']);
+  updateIntimacyDots();
+  var inp = document.getElementById('inp');
+  inp.addEventListener('keydown', function(e) {
+    if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();doSend();}
   });
+  inp.addEventListener('input', function() {
+    inp.style.height='auto';
+    inp.style.height=Math.min(inp.scrollHeight,90)+'px';
+  });
+  document.getElementById('send-btn').addEventListener('click', doSend);
+  document.getElementById('manga-btn').addEventListener('click', generateManga);
+  document.getElementById('manga-close').addEventListener('click', function() {
+    document.getElementById('manga-overlay').classList.remove('show');
+  });
+};
 
-  const data = await response.json();
-  if(data.images && data.images[0]) {
-    return { ...panel, imageUrl: data.images[0].url };
-  }
-  throw new Error('Panel ' + panel.id + ' 生成失敗');
+function toggleThought(btn) {
+  var wrap = btn.closest('.bubble-wrap');
+  var panel = wrap.parentElement.querySelector('.thought-panel');
+  if(panel) panel.classList.toggle('open');
 }
 
-module.exports = async function handler(req, res) {
-  if(req.method !== 'POST') return res.status(405).end();
+function updateIntimacyDots() {
+  var dots = document.querySelectorAll('.idot');
+  dots.forEach(function(d,i){ d.classList.toggle('active', i < intimacyLevel); });
+}
 
-  try {
-    console.log('開始生成漫畫...');
-    const results = [];
-    for(const panel of PANELS) {
-      console.log('生成第 ' + panel.id + ' 格...');
-      const result = await generatePanel(panel);
-      results.push(result);
-    }
+function showToast(msg) {
+  var t = document.getElementById('intimacy-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
 
-    res.status(200).json({
-      success: true,
-      panels: results.map(p => ({
-        id: p.id,
-        size: p.size,
-        imageUrl: p.imageUrl,
-        dialogue: p.dialogue,
-        sfx: p.sfx
-      }))
-    });
-
-  } catch(e) {
-    console.error('漫畫生成失敗:', e);
-    res.status(500).json({ error: e.message });
+function updateIntimacy(delta) {
+  if(!delta) return;
+  var prev = intimacyLevel;
+  intimacyExp = Math.max(0, intimacyExp + delta);
+  var newLevel = 1;
+  for(var i = intimacyThresholds.length-1; i >= 0; i--) {
+    if(intimacyExp >= intimacyThresholds[i]){ newLevel = i+1; break; }
   }
-};
+  newLevel = Math.min(5, Math.max(1, newLevel));
+  if(newLevel !== prev) {
+    intimacyLevel = newLevel;
+    updateIntimacyDots();
+    if(newLevel > prev) showToast('親密度提升 · ' + intimacyLabels[newLevel]);
+  }
+}
+
+function pick(type, text) {
+  var isAction = type === 'action';
+  var content = isAction ? '[行為：' + text.replace('⟶ ','') + ']' : text;
+  addMsg('user', null, null, text, isAction);
+  chatHistory.push({role:'user', content:content});
+  roundCount++;
+  getReply();
+}
+
+function doSend() {
+  var inp = document.getElementById('inp');
+  var text = inp.value.trim();
+  if(!text) return;
+  inp.value='';
+  inp.style.height='auto';
+  addMsg('user', null, null, text, false);
+  chatHistory.push({role:'user', content:text});
+  roundCount++;
+  getReply();
+}
+
+function getReply() {
+  addTyping();
+  fetch('/api/chat', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({messages:chatHistory, intimacyLevel:intimacyLevel, roundCount:roundCount})
+  })
+  .then(function(res){ removeTyping(); if(!res.ok) throw new Error(); return res.json(); })
+  .then(function(data) {
+    var raw = data.content.map(function(c){return c.text||'';}).join('');
+    var parsed;
+    try {
+      parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    } catch(e) {
+      var rm = raw.match(/"reply"\s*:\s*"([^"]+)"/);
+      var tm = raw.match(/"thought"\s*:\s*"([\s\S]+?)"/);
+      var am = raw.match(/"actions"\s*:\s*\[([^\]]+)\]/);
+      parsed = {
+        reply: rm?rm[1]:raw,
+        thought: tm?tm[1]:'',
+        actions: am?am[1].match(/"([^"]+)"/g).map(function(s){return s.replace(/"/g,'');}):[]
+      };
+    }
+    var reply = parsed.reply || raw;
+    var thought = parsed.thought || '';
+    var actions = parsed.actions || [];
+    var delta = parsed.intimacy_delta || 0;
+    var tension = parsed.tension_score || 5;
+    chatHistory.push({role:'assistant', content:reply});
+    updateIntimacy(delta);
+    addMsg('ava', thought, null, reply, false);
+    updateChoices(actions.length ? actions : ['你在想什麼？','繼續說。','⟶ 安靜等她開口']);
+    document.getElementById('doing').textContent = doings[Math.floor(Math.random()*doings.length)];
+    checkConflict(tension);
+  })
+  .catch(function() {
+    removeTyping();
+    addMsg('ava','',null,'——停了一下。\n\n你說什麼？',false);
+    updateChoices(['再說一次。','沒事。','⟶ 靜靜坐著']);
+  });
+}
+
+function checkConflict(tension) {
+  if(roundCount < 15) return;
+  var prob = 0.33;
+  if(roundCount >= 20) prob = 0.5;
+  if(roundCount >= 25) prob = 0.75;
+  if(roundCount >= 30) prob = 1.0;
+  if(Math.random() < prob) triggerConflict();
+}
+
+function triggerConflict() {
+  var conflicts = {
+    1:{signal:'——她的手機震動了。她看了一眼，把螢幕翻過去。',hint:'你今晚有地方要去嗎。'},
+    2:{signal:'——走廊傳來腳步聲。她側過臉，表情變了一下。',hint:'對不起，等我一下。'},
+    3:{signal:'——她的電話又響了。這次她站起來，走向窗邊。',hint:'有些事，我可能要跟你說。'},
+    4:{signal:'——她把一個信封放在桌上。沒有說話。',hint:'你願意陪我嗎。'},
+    5:{signal:'——她很久沒有說話。然後說：',hint:'如果我消失一段時間，你會找我嗎。'}
+  };
+  var level = Math.min(intimacyLevel, 5);
+  var c = conflicts[level];
+  setTimeout(function() {
+    addMsg('ava','',null,c.signal+'\n\n「'+c.hint+'」',false);
+    updateChoices(['發生什麼事了？','我在這裡。','⟶ 走過去站在她旁邊']);
+    roundCount = 0;
+  }, 1200);
+}
+
+function generateManga() {
+  var overlay = document.getElementById('manga-overlay');
+  var panelsDiv = document.getElementById('manga-panels');
+  panelsDiv.innerHTML = '<div class="manga-loading">正在為你繪製這一刻…<br><br>約需 30–60 秒<br><br>請稍候</div>';
+  overlay.classList.add('show');
+
+  fetch('/api/manga', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({dialogue: chatHistory.slice(-20)})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if(!data.success) throw new Error(data.error);
+    if(data.title) document.getElementById('manga-title').textContent = data.title;
+    panelsDiv.innerHTML = '';
+
+    data.panels.forEach(function(panel) {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'manga-panel-wrap';
+
+      var img = document.createElement('img');
+      img.src = panel.imageUrl;
+      img.alt = '';
+      wrapper.appendChild(img);
+
+      if(panel.dialogue) {
+        var bubble = document.createElement('div');
+        bubble.className = 'manga-dialogue';
+        bubble.textContent = panel.dialogue;
+        wrapper.appendChild(bubble);
+      }
+
+      if(panel.sfx) {
+        var sfx = document.createElement('div');
+        sfx.className = 'manga-sfx';
+        sfx.textContent = panel.sfx;
+        wrapper.appendChild(sfx);
+      }
+
+      panelsDiv.appendChild(wrapper);
+    });
+  })
+  .catch(function(e) {
+    panelsDiv.innerHTML = '<div class="manga-loading" style="color:rgba(180,60,60,.6);">生成失敗<br><br>' + e.message + '</div>';
+  });
+}
+
+function updateChoices(actions) {
+  var row = document.getElementById('choices-row');
+  var box = document.getElementById('choices');
+  row.innerHTML = '';
+  if(!actions.length){ box.style.display='none'; return; }
+  box.style.display = 'flex';
+  actions.forEach(function(a) {
+    var isAction = a.startsWith('⟶');
+    var btn = document.createElement('button');
+    btn.className = 'choice'+(isAction?' action':'');
+    btn.textContent = a;
+    btn.onclick = function(){ pick(isAction?'action':'say', a); };
+    row.appendChild(btn);
+  });
+}
+
+function formatBubble(text) {
+  return text.replace(/\\n/g,'\n').split('\n').map(function(line) {
+    return line.startsWith('——') ? '<span class="action-line">'+line+'</span>' : line;
+  }).join('<br>');
+}
+
+function addMsg(role, thought, image, text, isAction) {
+  var area = document.getElementById('chat');
+  var div = document.createElement('div');
+  div.className = 'msg ' + role;
+  var html = '<span class="sender">'+(role==='user'?'YOU':'CHRISTINE')+'</span>';
+  if(role === 'ava') {
+    var content = formatBubble(text);
+    html += '<div class="bubble-wrap">';
+    html += '<div class="bubble">'+content+'</div>';
+    html += '<button class="thought-btn" onclick="toggleThought(this)">偷看內心</button>';
+    html += '</div>';
+    if(thought) html += '<div class="thought-panel"><div class="thought-label">偷看內心</div><p>'+thought+'</p></div>';
+  } else {
+    html += '<div class="bubble-wrap"><div class="bubble'+(isAction?' action':'')+'">'+text.replace(/\n/g,'<br>')+'</div></div>';
+  }
+  div.innerHTML = html;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function addTyping() {
+  var area = document.getElementById('chat');
+  var div = document.createElement('div');
+  div.id = 'typing';
+  div.className = 'typing-wrap';
+  div.innerHTML = '<span class="sender">CHRISTINE</span><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function removeTyping() {
+  var t = document.getElementById('typing');
+  if(t) t.remove();
+}
+</script>
+</body>
+</html>
